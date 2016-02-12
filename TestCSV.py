@@ -1,6 +1,6 @@
 from shutil import copyfile
 import unittest
-from CSVController import CSVHandler
+from CSVHandler import CSVHandler
 
 __author__ = 'mkritzl'
 
