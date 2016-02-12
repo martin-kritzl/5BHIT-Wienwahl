@@ -21,8 +21,8 @@ class MyController(QWidget):
                 self.model.csv_text = self.model.csv_text + ';'.join(row) + '\r\n'
 
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    c = MyController()
-    c.show()
-    sys.exit(app.exec_())
+# if __name__ == "__main__":
+#     app = QApplication(sys.argv)
+#     c = MyController()
+#     c.show()
+#     sys.exit(app.exec_())
