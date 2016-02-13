@@ -24,6 +24,7 @@ class TestCSV(unittest.TestCase):
         self.csvHandler.appendLine("Neue Zeile;1")
         self.csvHandler.appendLine(["Neue Zeile", "2"])
         self.assertEqual("Neue Zeile;1", self.csvHandler.getLineAsString(1547))
+        # self.assertEqual("Neue Zeile;2", self.csvHandler.getLineAsString(1548))
         self.assertEqual("Neue Zeile;2", self.csvHandler.getLineAsString(1548))
 
     def testSetContent(self):
