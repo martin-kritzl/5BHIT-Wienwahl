@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'Overview.ui'
 #
-# Created: Thu Feb 11 13:12:37 2016
+# Created: Wed Feb 24 10:07:56 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -15,6 +15,9 @@ class Ui_MainWindow(object):
         MainWindow.resize(855, 599)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+        self.tabs = QtGui.QTabWidget(self.centralwidget)
+        self.tabs.setGeometry(QtCore.QRect(4, 9, 841, 531))
+        self.tabs.setObjectName("tabs")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 855, 26))

@@ -9,7 +9,8 @@ class TestCSV(unittest.TestCase):
 
     def setUp(self):
         copyfile("data.csv", "test.csv")
-        self.csvHandler = CSVHandler("test.csv")
+        self.csvHandler = CSVHandler()
+        self.csvHandler.setFile("test.csv")
         self.csvHandler.clearFile("data.csv", "test.csv")
 
     def testReadAllString(self):

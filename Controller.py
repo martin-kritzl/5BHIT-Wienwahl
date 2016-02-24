@@ -1,5 +1,6 @@
+from PySide import QtGui
 from CSVHandler import CSVHandler
-from WienwahlModel import WienwahlModel, TableModel
+from WienwahlModel import WienwahlModel, TableModel, Accessor
 import WienwahlView
 import os
 from PySide.QtGui import *
@@ -17,9 +18,11 @@ class MyController(QMainWindow):
         super().__init__(parent)
         self.form = WienwahlView.Ui_MainWindow()
         self.form.setupUi(self)
-        self.model = TableModel()
-        self.currentFile = None
+        self.model = WienwahlModel()
         self.csvHandler = CSVHandler()
+
+
+
 
         self.form.newFile.triggered.connect(self.newFile)
         self.form.openFile.triggered.connect(self.openFile)
@@ -38,20 +41,58 @@ class MyController(QMainWindow):
         return path
 
     def newFile(self):
-        pass
+        tab = self.appendTab("New")
+
+        table_model = TableModel(tab, [], None)
+        self.appendTable(table_model, tab)
+
+        self.model.setCurrentTableAndAdd(table_model)
+        self.formatTable(self.appendTable(table_model, tab))
+
+    def formatTable(self, table):
+        # set font
+        font = QFont("Courier New", 14)
+        table.setFont(font)
+        # set column width to fit contents (set font first!)
+        table.resizeColumnsToContents()
+        # enable sorting
+        if self.model.getCurrentTable().getContent():
+            table.setSortingEnabled(True)
+
+    def appendTab(self, displayName):
+        tab = QtGui.QWidget()
+        tab.setObjectName("tab"+str(self.model.getTableCount()))
+        self.form.tabs.addTab(tab, displayName)
+        return tab
+
+    def appendTable(self, table_model, parent):
+        table_view = QTableView()
+        table_view.setModel(table_model)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(table_view)
+        parent.setLayout(layout)
+
+        return table_view
 
     def openFile(self):
-        self.currentFile = self.openFileDialog()
-        self.model.setData(self.csvHandler.getContentAsArray())
+        path = self.openFileDialog()
+        accessor = Accessor(path)
+        tab = self.appendTab(accessor.getName())
+
+        table_model = TableModel(tab, self.csvHandler.getContentAsArray(path), accessor)
+
+        self.model.setCurrentTableAndAdd(table_model)
+        self.formatTable(self.appendTable(table_model, tab))
 
     def saveFile(self):
-        if self.currentFile:
-            pass
+        if self.model.getCurrentTable().getAccessor():
+            self.csvHandler.setContent(self.model.getCurrentTable().getAccessor().getAccessString(), self.model.getCurrentTable().getData())
         else:
             self.saveAsFile()
 
     def saveAsFile(self):
-        self.currentFile = self.openFileDialog()
+        self.model.setCurrentFileAndAdd(self.openFileDialog())
         self.csvHandler.setContent(self.model.getData())
 
     def copyCreateScript(self):

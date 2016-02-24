@@ -6,31 +6,25 @@ __author__ = 'mkritzl'
 
 class CSVHandler(object):
 
-    def __init__(self):
-        pass
-
-    def setFile(self, file):
-        self.file = file
-
-    def getContentAsArray(self):
-        with open(self.file, newline='') as csvfile:
+    def getContentAsArray(self, file):
+        with open(file, newline='') as csvfile:
             rows = []
             file = csv.reader(csvfile, delimiter=';')
             for row in file:
                 rows.append(row)
             return rows
 
-    def getContentAsString(self):
+    def getContentAsString(self, file):
         output = ""
-        rows = self.getContentAsArray()
+        rows = self.getContentAsArray(file)
         for row in rows:
             output = output + ';'.join(row) + '\r\n'
 
         return output
 
-    def getLineAsArray(self, linenumber):
+    def getLineAsArray(self, file, linenumber):
         linenumber = linenumber - 1
-        with open(self.file, newline='') as csvfile:
+        with open(file, newline='') as csvfile:
             file = csv.reader(csvfile, delimiter=';')
             if linenumber is None:
                 collections.deque(file, maxlen=0)
@@ -39,9 +33,9 @@ class CSVHandler(object):
 
             return next(file)
 
-    def getLineAsString(self, linenumber):
+    def getLineAsString(self, file, linenumber):
         linenumber = linenumber - 1
-        with open(self.file, newline='') as csvfile:
+        with open(file, newline='') as csvfile:
             file = csv.reader(csvfile, delimiter=';')
             if linenumber is None:
                 collections.deque(file, maxlen=0)
@@ -60,8 +54,8 @@ class CSVHandler(object):
             for row in reader:
                 writer.writerow(row[0:len(row)-1])
 
-    def setContent(self, content):
-        with open(self.file, "w", newline='') as csvfile:
+    def setContent(self, file, content):
+        with open(file, "w", newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=';')
             csvfile.truncate()
 
@@ -71,8 +65,8 @@ class CSVHandler(object):
             elif type(content) is str:
                 writer.writerow(content.split(";"))
 
-    def appendLine(self, row):
-        with open(self.file, "a", newline='') as csvfile:
+    def appendLine(self, file, row):
+        with open(file, "a", newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=';')
 
             if isinstance(row, list):

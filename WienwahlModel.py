@@ -1,5 +1,5 @@
 import operator
-from PySide import QtCore
+from PySide import QtCore, QtGui
 from PySide.QtGui import *
 from PySide.QtCore import *
 
@@ -8,25 +8,85 @@ __author__ = 'mkritzl'
 from PySide.QtGui import *
 
 class WienwahlModel(object):
-    pass
+    tables = []
+    currentIndex = None
+
+    def getTables(self):
+        return self.tables
+
+    def setTables(self, tables):
+        self.tables = tables
+
+    def addTable(self, table):
+        self.tables.append(table)
+
+    def deleteTable(self, index):
+        return self.tables.pop(index)
+
+    def getTable(self, index):
+        return self.tables[index]
+
+    def getCurrentTable(self):
+        return self.tables[self.currentIndex]
+
+    def getCurrentIndex(self):
+        return self.currentIndex
+
+    def setCurrentIndex(self, index):
+        self.currentIndex = index
+
+    def setCurrentTable(self, table):
+        self.currentIndex = self.tables.index(table)
+
+    def setCurrentTableAndAdd(self, table):
+        self.addTable(table)
+        self.setCurrentTable(table)
+
+    def getTableCount(self):
+        return len(self.tables)
 
 
 class TableModel(QAbstractTableModel):
-    content = None
-    header = None
-    currentFile = None
+    """
+    https://blog.rburchell.com/2010/02/pyside-tutorial-model-view-programming_22.html
+    """
+    content = []
+    header = []
+    accessor = None
 
-    def __init__(self, parent, content, header, *args):
+    def __init__(self, parent,  data, accessor, *args):
         QAbstractTableModel.__init__(self, parent, *args)
-        self.content = content
-        self.header = header
+        if data:
+            self.content = data[1:len(data)]
+            self.header = data[0]
 
-    def setData(self, data):
-        self.setHeader(data[0])
-        self.setContent(data[1:len(data)])
+        # self.header = ["abc", "def"]
+        # self.content = [[QtGui.QTableWidgetItem("ghi"), QtGui.QTableWidgetItem("jkl")]]
+
+        self.accessor = accessor
+
+    def getAccessor(self):
+        return self.accessor
+
+    def flags(self, index):
+        return Qt.ItemIsSelectable | Qt.ItemIsEditable | Qt.ItemIsEnabled
+
+    # def setData(self, data):
+    #     self.setHeader(data[0])
+    #     self.setContent(data[1:len(data)])
+
+    def setData(self, index, value, role = Qt.EditRole):
+        if role == Qt.EditRole:
+            self.content[index.row()][index.column()] = value
+            QObject.emit(self, SIGNAL("dataChanged(const QModelIndex&, const QModelIndex &)"), index, index)
+            return True
+        return False
 
     def setContent(self, content):
         self.content = content
+
+    def getContent(self):
+        return self.content
 
     def getData(self):
         return self.header + self.content
@@ -38,7 +98,7 @@ class TableModel(QAbstractTableModel):
         return len(self.content)
 
     def columnCount(self, parent):
-        return len(self.content[0])
+        return len(self.header)
 
     def data(self, index, role):
         if not index.isValid():
@@ -59,4 +119,16 @@ class TableModel(QAbstractTableModel):
         if order == Qt.DescendingOrder:
             self.content.reverse()
         self.emit(SIGNAL("layoutChanged()"))
+
+
+class Accessor(object):
+
+    def __init__(self, access):
+        self.access = access
+
+    def getName(self):
+        return self.access[self.access.rfind("/")+1:len(self.access)]
+
+    def getAccessString(self):
+        return self.access
 
