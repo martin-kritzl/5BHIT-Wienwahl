@@ -31,6 +31,7 @@ class MyController(QMainWindow):
         self.form.copyCreateScript.triggered.connect(self.copyCreateScript)
         self.form.closeWindow.triggered.connect(self.closeWindow)
         self.form.helpWindow.triggered.connect(self.helpWindow)
+        self.form.tabs.currentChanged.connect(self.tabChanged)
 
     def openFileDialog(self):
         """
@@ -39,6 +40,12 @@ class MyController(QMainWindow):
 
         path, _ = QFileDialog.getOpenFileName(self, "Open File", os.getcwd())
         return path
+
+
+    def newFileDialog(self):
+        path, _ = QFileDialog.getSaveFileName(self, "Save File", os.getcwd())
+        return path
+
 
     def newFile(self):
         tab = self.appendTab("New")
@@ -59,10 +66,12 @@ class MyController(QMainWindow):
         if self.model.getCurrentTable().getContent():
             table.setSortingEnabled(True)
 
-    def appendTab(self, displayName):
+    def appendTab(self, accessor):
         tab = QtGui.QWidget()
         tab.setObjectName("tab"+str(self.model.getTableCount()))
-        self.form.tabs.addTab(tab, displayName)
+        tab.setToolTip(accessor.getAccessString())
+        self.form.tabs.addTab(tab, accessor.getName())
+        self.form.tabs.setCurrentIndex(self.form.tabs.count()-1)
         return tab
 
     def appendTable(self, table_model, parent):
@@ -77,13 +86,14 @@ class MyController(QMainWindow):
 
     def openFile(self):
         path = self.openFileDialog()
-        accessor = Accessor(path)
-        tab = self.appendTab(accessor.getName())
+        if path is not "":
+            accessor = Accessor(path)
+            tab = self.appendTab(accessor)
 
-        table_model = TableModel(tab, self.csvHandler.getContentAsArray(path), accessor)
+            table_model = TableModel(tab, self.csvHandler.getContentAsArray(path), accessor)
 
-        self.model.setCurrentTableAndAdd(table_model)
-        self.formatTable(self.appendTable(table_model, tab))
+            self.model.setCurrentTableAndAdd(table_model)
+            self.formatTable(self.appendTable(table_model, tab))
 
     def saveFile(self):
         if self.model.getCurrentTable().getAccessor():
@@ -92,8 +102,8 @@ class MyController(QMainWindow):
             self.saveAsFile()
 
     def saveAsFile(self):
-        self.model.setCurrentFileAndAdd(self.openFileDialog())
-        self.csvHandler.setContent(self.model.getData())
+        path = self.newFileDialog()
+        self.csvHandler.setContent(path, self.model.getCurrentTable().getData())
 
     def copyCreateScript(self):
         pass
@@ -103,6 +113,9 @@ class MyController(QMainWindow):
 
     def helpWindow(self):
         pass
+
+    def tabChanged(self):
+        self.model.setCurrentIndex(self.form.tabs.currentIndex())
 
 
 if __name__ == "__main__":

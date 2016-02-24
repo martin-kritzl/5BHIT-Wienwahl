@@ -23,6 +23,20 @@
       <height>531</height>
      </rect>
     </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::DefaultContextMenu</enum>
+    </property>
+    <property name="tabsClosable">
+     <bool>true</bool>
+    </property>
+    <property name="movable">
+     <bool>true</bool>
+    </property>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>Page</string>
+     </attribute>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -91,6 +105,9 @@
    <property name="statusTip">
     <string>Open a file</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="saveFile">
    <property name="text">
@@ -98,6 +115,9 @@
    </property>
    <property name="statusTip">
     <string>Save the actual file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="saveAsFile">
@@ -107,6 +127,9 @@
    <property name="statusTip">
     <string>Save the actual file again</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
   </action>
   <action name="newFile">
    <property name="text">
@@ -114,6 +137,9 @@
    </property>
    <property name="statusTip">
     <string>Create a new file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
   <action name="closeWindow">

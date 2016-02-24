@@ -9,7 +9,7 @@ from PySide.QtGui import *
 
 class WienwahlModel(object):
     tables = []
-    currentIndex = None
+    currentIndexOfTab = 0
 
     def getTables(self):
         return self.tables
@@ -27,16 +27,17 @@ class WienwahlModel(object):
         return self.tables[index]
 
     def getCurrentTable(self):
-        return self.tables[self.currentIndex]
+        tmp = self.currentIndexOfTab
+        return self.tables[self.currentIndexOfTab]
 
     def getCurrentIndex(self):
-        return self.currentIndex
+        return self.currentIndexOfTab
 
     def setCurrentIndex(self, index):
-        self.currentIndex = index
+        self.currentIndexOfTab = index
 
     def setCurrentTable(self, table):
-        self.currentIndex = self.tables.index(table)
+        self.currentIndexOfTab = self.tables.index(table)
 
     def setCurrentTableAndAdd(self, table):
         self.addTable(table)
@@ -89,7 +90,7 @@ class TableModel(QAbstractTableModel):
         return self.content
 
     def getData(self):
-        return self.header + self.content
+        return [self.header] + self.content
 
     def setHeader(self, header):
         self.header = header

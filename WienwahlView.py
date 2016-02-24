@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'Overview.ui'
 #
-# Created: Wed Feb 24 10:07:56 2016
+# Created: Wed Feb 24 11:00:01 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,7 +17,13 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.tabs = QtGui.QTabWidget(self.centralwidget)
         self.tabs.setGeometry(QtCore.QRect(4, 9, 841, 531))
+        self.tabs.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
+        self.tabs.setTabsClosable(True)
+        self.tabs.setMovable(True)
         self.tabs.setObjectName("tabs")
+        self.tab = QtGui.QWidget()
+        self.tab.setObjectName("tab")
+        self.tabs.addTab(self.tab, "")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 855, 26))
@@ -65,6 +71,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabs.setTabText(self.tabs.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Page", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setStatusTip(QtGui.QApplication.translate("MainWindow", "Handle files", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuEdit.setStatusTip(QtGui.QApplication.translate("MainWindow", "Edit content", None, QtGui.QApplication.UnicodeUTF8))
@@ -75,12 +82,16 @@ class Ui_MainWindow(object):
         self.helpWindow.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.openFile.setText(QtGui.QApplication.translate("MainWindow", "Open", None, QtGui.QApplication.UnicodeUTF8))
         self.openFile.setStatusTip(QtGui.QApplication.translate("MainWindow", "Open a file", None, QtGui.QApplication.UnicodeUTF8))
+        self.openFile.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
         self.saveFile.setText(QtGui.QApplication.translate("MainWindow", "Save", None, QtGui.QApplication.UnicodeUTF8))
         self.saveFile.setStatusTip(QtGui.QApplication.translate("MainWindow", "Save the actual file", None, QtGui.QApplication.UnicodeUTF8))
+        self.saveFile.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.saveAsFile.setText(QtGui.QApplication.translate("MainWindow", "Save As", None, QtGui.QApplication.UnicodeUTF8))
         self.saveAsFile.setStatusTip(QtGui.QApplication.translate("MainWindow", "Save the actual file again", None, QtGui.QApplication.UnicodeUTF8))
+        self.saveAsFile.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+S", None, QtGui.QApplication.UnicodeUTF8))
         self.newFile.setText(QtGui.QApplication.translate("MainWindow", "New", None, QtGui.QApplication.UnicodeUTF8))
         self.newFile.setStatusTip(QtGui.QApplication.translate("MainWindow", "Create a new file", None, QtGui.QApplication.UnicodeUTF8))
+        self.newFile.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
         self.closeWindow.setText(QtGui.QApplication.translate("MainWindow", "Close", None, QtGui.QApplication.UnicodeUTF8))
         self.closeWindow.setStatusTip(QtGui.QApplication.translate("MainWindow", "Close the window", None, QtGui.QApplication.UnicodeUTF8))
         self.closeWindow.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Q", None, QtGui.QApplication.UnicodeUTF8))
