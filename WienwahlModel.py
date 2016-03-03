@@ -1,11 +1,7 @@
 import operator
-from PySide import QtCore, QtGui
-from PySide.QtGui import *
 from PySide.QtCore import *
 
 __author__ = 'mkritzl'
-
-from PySide.QtGui import *
 
 class WienwahlModel(object):
     tables = []
@@ -27,8 +23,10 @@ class WienwahlModel(object):
         return self.tables[index]
 
     def getCurrentTable(self):
-        tmp = self.currentIndexOfTab
-        return self.tables[self.currentIndexOfTab]
+        if len(self.tables) != 0:
+            return self.tables[self.currentIndexOfTab]
+        else:
+            return None
 
     def getCurrentIndex(self):
         return self.currentIndexOfTab
@@ -54,6 +52,7 @@ class TableModel(QAbstractTableModel):
     content = []
     header = []
     accessor = None
+    edited = False
 
     def __init__(self, parent,  data, accessor, *args):
         QAbstractTableModel.__init__(self, parent, *args)
@@ -61,25 +60,28 @@ class TableModel(QAbstractTableModel):
             self.content = data[1:len(data)]
             self.header = data[0]
 
-        # self.header = ["abc", "def"]
-        # self.content = [[QtGui.QTableWidgetItem("ghi"), QtGui.QTableWidgetItem("jkl")]]
-
         self.accessor = accessor
 
     def getAccessor(self):
         return self.accessor
 
+    def setAccessor(self, accessor):
+        self.accessor = accessor
+
+    def setEdited(self, edited):
+        self.edited = edited
+
+    def isEdited(self):
+        return self.edited
+
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEditable | Qt.ItemIsEnabled
-
-    # def setData(self, data):
-    #     self.setHeader(data[0])
-    #     self.setContent(data[1:len(data)])
 
     def setData(self, index, value, role = Qt.EditRole):
         if role == Qt.EditRole:
             self.content[index.row()][index.column()] = value
             QObject.emit(self, SIGNAL("dataChanged(const QModelIndex&, const QModelIndex &)"), index, index)
+            self.setEdited(True)
             return True
         return False
 
@@ -108,10 +110,23 @@ class TableModel(QAbstractTableModel):
             return None
         return self.content[index.row()][index.column()]
 
+    def insertRow(self, row, parent=None, count=1):
+        self.beginInsertRows(QModelIndex(), row, row + count - 1)
+        self.content.insert(row, [None] * self.columnCount(None))
+        self.endInsertRows()
+        self.setEdited(True)
+
     def headerData(self, col, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self.header[col]
         return None
+
+    def removeRows(self, row, count, parent=QModelIndex):
+        self.beginRemoveRows(QModelIndex(), row, row+count-1)
+        for i in range(count):
+            del self.content[row:row+count]
+        self.endRemoveRows()
+        return True
 
     def sort(self, col, order):
         """sort table by given column number col"""
@@ -120,6 +135,7 @@ class TableModel(QAbstractTableModel):
         if order == Qt.DescendingOrder:
             self.content.reverse()
         self.emit(SIGNAL("layoutChanged()"))
+        self.setEdited(True)
 
 
 class Accessor(object):

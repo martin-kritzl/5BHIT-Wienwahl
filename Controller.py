@@ -3,8 +3,6 @@ from CSVHandler import CSVHandler
 from WienwahlModel import WienwahlModel, TableModel, Accessor
 import WienwahlView
 import os
-from PySide.QtGui import *
-from PySide.QtCore import *
 
 __author__ = 'mkritzl'
 
@@ -32,6 +30,8 @@ class MyController(QMainWindow):
         self.form.closeWindow.triggered.connect(self.closeWindow)
         self.form.helpWindow.triggered.connect(self.helpWindow)
         self.form.tabs.currentChanged.connect(self.tabChanged)
+        self.form.tabs.tabCloseRequested.connect(self.closeTab)
+        self.form.addRow.triggered.connect(self.addRow)
 
     def openFileDialog(self):
         """
@@ -48,13 +48,14 @@ class MyController(QMainWindow):
 
 
     def newFile(self):
-        tab = self.appendTab("New")
+        tab = self.appendTab(None)
 
         table_model = TableModel(tab, [], None)
         self.appendTable(table_model, tab)
 
         self.model.setCurrentTableAndAdd(table_model)
         self.formatTable(self.appendTable(table_model, tab))
+        self.model.getCurrentTable().setEdited(False)
 
     def formatTable(self, table):
         # set font
@@ -66,16 +67,22 @@ class MyController(QMainWindow):
         if self.model.getCurrentTable().getContent():
             table.setSortingEnabled(True)
 
+
     def appendTab(self, accessor):
         tab = QtGui.QWidget()
         tab.setObjectName("tab"+str(self.model.getTableCount()))
-        tab.setToolTip(accessor.getAccessString())
-        self.form.tabs.addTab(tab, accessor.getName())
+        if accessor:
+            tab.setToolTip(accessor.getAccessString())
+            self.form.tabs.addTab(tab, accessor.getName())
+        else:
+            tab.setToolTip("New")
+            self.form.tabs.addTab(tab, "New")
         self.form.tabs.setCurrentIndex(self.form.tabs.count()-1)
         return tab
 
     def appendTable(self, table_model, parent):
         table_view = QTableView()
+        table_view.setObjectName("table"+self.model.getTableCount())
         table_view.setModel(table_model)
 
         layout = QVBoxLayout(self)
@@ -94,16 +101,57 @@ class MyController(QMainWindow):
 
             self.model.setCurrentTableAndAdd(table_model)
             self.formatTable(self.appendTable(table_model, tab))
+            self.model.getCurrentTable().setEdited(False)
 
     def saveFile(self):
-        if self.model.getCurrentTable().getAccessor():
-            self.csvHandler.setContent(self.model.getCurrentTable().getAccessor().getAccessString(), self.model.getCurrentTable().getData())
-        else:
-            self.saveAsFile()
+        if self.model.getTableCount()>0:
+            if self.model.getCurrentTable().getAccessor():
+                self.csvHandler.setContent(self.model.getCurrentTable().getAccessor().getAccessString(), self.model.getCurrentTable().getData())
+            else:
+                self.saveAsFile()
 
     def saveAsFile(self):
-        path = self.newFileDialog()
-        self.csvHandler.setContent(path, self.model.getCurrentTable().getData())
+        if self.model.getTableCount()>0:
+            path = self.newFileDialog()
+            self.csvHandler.setContent(path, self.model.getCurrentTable().getData())
+
+            accessor = Accessor(path)
+            self.model.getCurrentTable().setAccessor(Accessor(path))
+            self.model.getCurrentTable().setEdited(False)
+
+            self.form.tabs.setTabText(self.model.getCurrentIndex(), accessor.getName())
+            self.form.tabs.setTabToolTip(self.model.getCurrentIndex(), accessor.getName())
+
+    def get_zero_column_selected_indexes(self, table_view=None):
+        if not table_view:
+            return
+        selected_indexes = table_view.selectedIndexes()
+        if not selected_indexes:
+            return
+        return [index for index in selected_indexes if not index.column()]
+
+    def get_selection(self):
+        zero_column_selected_indexes = self.get_zero_column_selected_indexes(self.form["table"+self.model.getCurrentIndex()])
+        if not zero_column_selected_indexes:
+            return self.table_model.rowCount(self), 1
+        first_zero_column_selected_index = zero_column_selected_indexes[0]
+        zero_column_selected_indexes = self.get_zero_column_selected_indexes(self.view.tableView)
+
+        if not first_zero_column_selected_index or not first_zero_column_selected_index.isValid():
+            return False
+        startingrow = first_zero_column_selected_index.row()
+
+        return startingrow, len(zero_column_selected_indexes)
+
+
+    def addRow(self):
+        table = self.model.getCurrentTable()
+        if table:
+            table.insertRow(table.rowCount(table))
+
+    def removeRows(self):
+        start, amount = self.get_selection()
+        self.model.getCurrentTable().removeRows(start, amount)
 
     def copyCreateScript(self):
         pass
@@ -116,6 +164,28 @@ class MyController(QMainWindow):
 
     def tabChanged(self):
         self.model.setCurrentIndex(self.form.tabs.currentIndex())
+
+    def closeTab(self, index):
+        if not self.model.getTables()[index].isEdited():
+            self.removeTab(index)
+        else:
+            quit_msg = "The file is not saved. Are you sure you want to close the file?"
+            reply = QtGui.QMessageBox.question(self, 'Message', quit_msg, QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+
+            if reply == QtGui.QMessageBox.Save:
+                self.saveFile()
+                self.removeTab(index)
+            elif reply == QtGui.QMessageBox.Yes:
+                self.removeTab(index)
+
+    def removeTab(self, index):
+        widget = self.form.tabs.widget(index)
+        if widget is not None:
+            widget.deleteLater()
+        self.form.tabs.removeTab(index)
+        self.model.deleteTable(index)
+
+
 
 
 if __name__ == "__main__":

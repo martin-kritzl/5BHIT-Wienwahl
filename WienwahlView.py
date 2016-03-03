@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'Overview.ui'
 #
-# Created: Wed Feb 24 11:00:01 2016
+# Created: Tue Mar 01 13:26:17 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,21 +12,20 @@ from PySide import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(855, 599)
+        MainWindow.resize(919, 599)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+        self.gridLayout = QtGui.QGridLayout(self.centralwidget)
+        self.gridLayout.setObjectName("gridLayout")
         self.tabs = QtGui.QTabWidget(self.centralwidget)
-        self.tabs.setGeometry(QtCore.QRect(4, 9, 841, 531))
         self.tabs.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
         self.tabs.setTabsClosable(True)
         self.tabs.setMovable(True)
         self.tabs.setObjectName("tabs")
-        self.tab = QtGui.QWidget()
-        self.tab.setObjectName("tab")
-        self.tabs.addTab(self.tab, "")
+        self.gridLayout.addWidget(self.tabs, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 855, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 919, 26))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -54,11 +53,14 @@ class Ui_MainWindow(object):
         self.closeWindow.setObjectName("closeWindow")
         self.copyCreateScript = QtGui.QAction(MainWindow)
         self.copyCreateScript.setObjectName("copyCreateScript")
+        self.addRow = QtGui.QAction(MainWindow)
+        self.addRow.setObjectName("addRow")
         self.menuFile.addAction(self.openFile)
         self.menuFile.addAction(self.saveFile)
         self.menuFile.addAction(self.saveAsFile)
         self.menuFile.addAction(self.newFile)
         self.menuEdit.addAction(self.copyCreateScript)
+        self.menuEdit.addAction(self.addRow)
         self.menuWindows.addAction(self.closeWindow)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
@@ -71,7 +73,6 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabs.setTabText(self.tabs.indexOf(self.tab), QtGui.QApplication.translate("MainWindow", "Page", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setStatusTip(QtGui.QApplication.translate("MainWindow", "Handle files", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuEdit.setStatusTip(QtGui.QApplication.translate("MainWindow", "Edit content", None, QtGui.QApplication.UnicodeUTF8))
@@ -98,4 +99,7 @@ class Ui_MainWindow(object):
         self.copyCreateScript.setText(QtGui.QApplication.translate("MainWindow", "Copy", None, QtGui.QApplication.UnicodeUTF8))
         self.copyCreateScript.setStatusTip(QtGui.QApplication.translate("MainWindow", "Copy the displayed content", None, QtGui.QApplication.UnicodeUTF8))
         self.copyCreateScript.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+C", None, QtGui.QApplication.UnicodeUTF8))
+        self.addRow.setText(QtGui.QApplication.translate("MainWindow", "Add Row", None, QtGui.QApplication.UnicodeUTF8))
+        self.addRow.setStatusTip(QtGui.QApplication.translate("MainWindow", "Add a new Row to the Table", None, QtGui.QApplication.UnicodeUTF8))
+        self.addRow.setShortcut(QtGui.QApplication.translate("MainWindow", "Shift+Return", None, QtGui.QApplication.UnicodeUTF8))
 
