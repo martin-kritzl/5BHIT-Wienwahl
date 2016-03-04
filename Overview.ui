@@ -50,6 +50,8 @@
     <addaction name="saveFile"/>
     <addaction name="saveAsFile"/>
     <addaction name="newFile"/>
+    <addaction name="separator"/>
+    <addaction name="openDatabase"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="statusTip">
@@ -165,6 +167,14 @@
    </property>
    <property name="shortcut">
     <string>Shift+Return</string>
+   </property>
+  </action>
+  <action name="openDatabase">
+   <property name="text">
+    <string>Open Database</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+O</string>
    </property>
   </action>
  </widget>

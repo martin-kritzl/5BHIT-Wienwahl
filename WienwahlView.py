@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'Overview.ui'
 #
-# Created: Tue Mar 01 13:26:17 2016
+# Created: Fri Mar 04 17:26:11 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -55,10 +55,14 @@ class Ui_MainWindow(object):
         self.copyCreateScript.setObjectName("copyCreateScript")
         self.addRow = QtGui.QAction(MainWindow)
         self.addRow.setObjectName("addRow")
+        self.openDatabase = QtGui.QAction(MainWindow)
+        self.openDatabase.setObjectName("openDatabase")
         self.menuFile.addAction(self.openFile)
         self.menuFile.addAction(self.saveFile)
         self.menuFile.addAction(self.saveAsFile)
         self.menuFile.addAction(self.newFile)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.openDatabase)
         self.menuEdit.addAction(self.copyCreateScript)
         self.menuEdit.addAction(self.addRow)
         self.menuWindows.addAction(self.closeWindow)
@@ -102,4 +106,6 @@ class Ui_MainWindow(object):
         self.addRow.setText(QtGui.QApplication.translate("MainWindow", "Add Row", None, QtGui.QApplication.UnicodeUTF8))
         self.addRow.setStatusTip(QtGui.QApplication.translate("MainWindow", "Add a new Row to the Table", None, QtGui.QApplication.UnicodeUTF8))
         self.addRow.setShortcut(QtGui.QApplication.translate("MainWindow", "Shift+Return", None, QtGui.QApplication.UnicodeUTF8))
+        self.openDatabase.setText(QtGui.QApplication.translate("MainWindow", "Open Database", None, QtGui.QApplication.UnicodeUTF8))
+        self.openDatabase.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+O", None, QtGui.QApplication.UnicodeUTF8))
 

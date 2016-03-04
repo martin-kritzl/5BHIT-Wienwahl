@@ -1,6 +1,7 @@
 from PySide import QtGui
 from CSVHandler import CSVHandler
-from WienwahlModel import WienwahlModel, TableModel, Accessor
+from DatabaseHandler import DatabaseHandler
+from WienwahlModel import WienwahlModel, TableModel, Accessor, ConnectionType
 import WienwahlView
 import os
 
@@ -18,6 +19,7 @@ class MyController(QMainWindow):
         self.form.setupUi(self)
         self.model = WienwahlModel()
         self.csvHandler = CSVHandler()
+        self.databaseHandler = DatabaseHandler('mysql+pymysql://wienwahl:wienwahl@localhost/wienwahl?charset=utf8')
 
 
 
@@ -26,6 +28,7 @@ class MyController(QMainWindow):
         self.form.openFile.triggered.connect(self.openFile)
         self.form.saveFile.triggered.connect(self.saveFile)
         self.form.saveAsFile.triggered.connect(self.saveAsFile)
+        self.form.openDatabase.triggered.connect(self.openDatabase)
         self.form.copyCreateScript.triggered.connect(self.copyCreateScript)
         self.form.closeWindow.triggered.connect(self.closeWindow)
         self.form.helpWindow.triggered.connect(self.helpWindow)
@@ -82,7 +85,7 @@ class MyController(QMainWindow):
 
     def appendTable(self, table_model, parent):
         table_view = QTableView()
-        table_view.setObjectName("table"+self.model.getTableCount())
+        table_view.setObjectName("table"+str(self.model.getTableCount()))
         table_view.setModel(table_model)
 
         layout = QVBoxLayout(self)
@@ -91,17 +94,27 @@ class MyController(QMainWindow):
 
         return table_view
 
-    def openFile(self):
-        path = self.openFileDialog()
-        if path is not "":
-            accessor = Accessor(path)
+    def generateNewTab(self, content, accessor):
             tab = self.appendTab(accessor)
 
-            table_model = TableModel(tab, self.csvHandler.getContentAsArray(path), accessor)
+            table_model = TableModel(tab, content, accessor)
 
             self.model.setCurrentTableAndAdd(table_model)
             self.formatTable(self.appendTable(table_model, tab))
             self.model.getCurrentTable().setEdited(False)
+
+    def openFile(self):
+        path = self.openFileDialog()
+        if path is not "":
+            accessor = Accessor(path, ConnectionType.csv)
+            self.generateNewTab(self.csvHandler.getContentAsArray(accessor.getAccessString()), accessor)
+
+    def openDatabase(self):
+        access = "2015-10-11"
+        if access is not "":
+            accessor = Accessor(access, ConnectionType.database)
+            self.generateNewTab(self.databaseHandler.getConentAsArray(accessor.getAccessString()), accessor)
+
 
     def saveFile(self):
         if self.model.getTableCount()>0:
@@ -115,12 +128,14 @@ class MyController(QMainWindow):
             path = self.newFileDialog()
             self.csvHandler.setContent(path, self.model.getCurrentTable().getData())
 
-            accessor = Accessor(path)
-            self.model.getCurrentTable().setAccessor(Accessor(path))
+            accessor = Accessor(path, ConnectionType.csv)
+            self.model.getCurrentTable().setAccessor(Accessor(path, ConnectionType.csv))
             self.model.getCurrentTable().setEdited(False)
 
             self.form.tabs.setTabText(self.model.getCurrentIndex(), accessor.getName())
             self.form.tabs.setTabToolTip(self.model.getCurrentIndex(), accessor.getName())
+
+
 
     def get_zero_column_selected_indexes(self, table_view=None):
         if not table_view:

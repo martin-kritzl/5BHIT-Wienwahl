@@ -1,3 +1,4 @@
+from enum import Enum
 import operator
 from PySide.QtCore import *
 
@@ -108,7 +109,11 @@ class TableModel(QAbstractTableModel):
             return None
         elif role != Qt.DisplayRole:
             return None
-        return self.content[index.row()][index.column()]
+        try:
+            return self.content[index.row()][index.column()]
+        except:
+            return None
+
 
     def insertRow(self, row, parent=None, count=1):
         self.beginInsertRows(QModelIndex(), row, row + count - 1)
@@ -140,12 +145,21 @@ class TableModel(QAbstractTableModel):
 
 class Accessor(object):
 
-    def __init__(self, access):
+    def __init__(self, access, type):
         self.access = access
+        self.type = type
+
+    def getConnectionType(self):
+        return self.type
 
     def getName(self):
         return self.access[self.access.rfind("/")+1:len(self.access)]
 
     def getAccessString(self):
         return self.access
+
+class ConnectionType(Enum):
+    database = 1
+    csv = 2
+
 
