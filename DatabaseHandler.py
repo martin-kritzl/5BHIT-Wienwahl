@@ -73,7 +73,8 @@ class DatabaseHandler(object):
         return elections
 
 
-    # def setContent(self, content, accessor):
+    def setContent(self, accessor,content):
+        pass
 
 
 

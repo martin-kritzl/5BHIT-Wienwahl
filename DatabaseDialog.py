@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'DatabaseDialog.ui'
 #
-# Created: Fri Mar 04 18:41:39 2016
+# Created: Fri Mar 04 21:44:48 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -20,6 +20,7 @@ class Ui_Form(object):
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
         self.elections = QtGui.QComboBox(self.gridLayoutWidget)
+        self.elections.setEditable(True)
         self.elections.setObjectName("elections")
         self.gridLayout.addWidget(self.elections, 1, 0, 1, 1)
         self.label = QtGui.QLabel(self.gridLayoutWidget)

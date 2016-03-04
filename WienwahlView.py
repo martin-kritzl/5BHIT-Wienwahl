@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'Overview.ui'
 #
-# Created: Fri Mar 04 18:41:38 2016
+# Created: Fri Mar 04 21:44:48 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -57,12 +57,15 @@ class Ui_MainWindow(object):
         self.addRow.setObjectName("addRow")
         self.openDatabase = QtGui.QAction(MainWindow)
         self.openDatabase.setObjectName("openDatabase")
+        self.saveAsDatabase = QtGui.QAction(MainWindow)
+        self.saveAsDatabase.setObjectName("saveAsDatabase")
         self.menuFile.addAction(self.openFile)
         self.menuFile.addAction(self.saveFile)
         self.menuFile.addAction(self.saveAsFile)
         self.menuFile.addAction(self.newFile)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.openDatabase)
+        self.menuFile.addAction(self.saveAsDatabase)
         self.menuEdit.addAction(self.copyCreateScript)
         self.menuEdit.addAction(self.addRow)
         self.menuWindows.addAction(self.closeWindow)
@@ -91,7 +94,7 @@ class Ui_MainWindow(object):
         self.saveFile.setText(QtGui.QApplication.translate("MainWindow", "Save", None, QtGui.QApplication.UnicodeUTF8))
         self.saveFile.setStatusTip(QtGui.QApplication.translate("MainWindow", "Save the actual file", None, QtGui.QApplication.UnicodeUTF8))
         self.saveFile.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
-        self.saveAsFile.setText(QtGui.QApplication.translate("MainWindow", "Save As", None, QtGui.QApplication.UnicodeUTF8))
+        self.saveAsFile.setText(QtGui.QApplication.translate("MainWindow", "Save As File", None, QtGui.QApplication.UnicodeUTF8))
         self.saveAsFile.setStatusTip(QtGui.QApplication.translate("MainWindow", "Save the actual file again", None, QtGui.QApplication.UnicodeUTF8))
         self.saveAsFile.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+S", None, QtGui.QApplication.UnicodeUTF8))
         self.newFile.setText(QtGui.QApplication.translate("MainWindow", "New", None, QtGui.QApplication.UnicodeUTF8))
@@ -107,5 +110,7 @@ class Ui_MainWindow(object):
         self.addRow.setStatusTip(QtGui.QApplication.translate("MainWindow", "Add a new Row to the Table", None, QtGui.QApplication.UnicodeUTF8))
         self.addRow.setShortcut(QtGui.QApplication.translate("MainWindow", "Shift+Return", None, QtGui.QApplication.UnicodeUTF8))
         self.openDatabase.setText(QtGui.QApplication.translate("MainWindow", "Open Database", None, QtGui.QApplication.UnicodeUTF8))
-        self.openDatabase.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+O", None, QtGui.QApplication.UnicodeUTF8))
+        self.openDatabase.setShortcut(QtGui.QApplication.translate("MainWindow", "Alt+O", None, QtGui.QApplication.UnicodeUTF8))
+        self.saveAsDatabase.setText(QtGui.QApplication.translate("MainWindow", "Save As Database", None, QtGui.QApplication.UnicodeUTF8))
+        self.saveAsDatabase.setShortcut(QtGui.QApplication.translate("MainWindow", "Alt+S", None, QtGui.QApplication.UnicodeUTF8))
 

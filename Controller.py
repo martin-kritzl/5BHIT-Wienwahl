@@ -11,6 +11,32 @@ __author__ = 'mkritzl'
 import sys
 from PySide.QtGui import *
 
+class MyDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.form = DatabaseDialog.Ui_Form()
+        self.form.setupUi(self)
+
+        self.form.okOrCancel.button(QtGui.QDialogButtonBox.Ok).clicked.connect(self.ok)
+        self.form.okOrCancel.button(QtGui.QDialogButtonBox.Cancel).clicked.connect(self.cancel)
+
+    def setElections(self, elections):
+        self.form.elections.clear()
+        self.form.elections.addItems(elections)
+
+    def getElection(self):
+        return self.form.elections.currentText()
+
+    def cancel(self):
+        self.form.elections.setEditText(None)
+        self.reject()
+
+    def ok(self):
+        self.accept()
+
+
+
 
 class MyController(QMainWindow):
     def __init__(self, parent=None):
@@ -20,31 +46,29 @@ class MyController(QMainWindow):
         self.form = WienwahlView.Ui_MainWindow()
         self.form.setupUi(self)
 
-        self.dialog = DatabaseDialog.Ui_Form()
-        self.dialogWindow = QDialog()
-        self.dialog.setupUi(self.dialogWindow)
+        self.dialogWindow = MyDialog()
 
         self.model = WienwahlModel()
         self.csvHandler = CSVHandler()
         self.databaseHandler = DatabaseHandler('mysql+pymysql://wienwahl:wienwahl@localhost/wienwahl?charset=utf8')
+
+        self.databaseStep = None
 
 
 
 
         self.form.newFile.triggered.connect(self.newFile)
         self.form.openFile.triggered.connect(self.openFile)
-        self.form.saveFile.triggered.connect(self.saveFile)
+        self.form.saveFile.triggered.connect(self.saveResource)
         self.form.saveAsFile.triggered.connect(self.saveAsFile)
-        self.form.openDatabase.triggered.connect(self.databaseDialog)
+        self.form.saveAsDatabase.triggered.connect(self.saveAsDatabase)
+        self.form.openDatabase.triggered.connect(self.openDatabase)
         self.form.copyCreateScript.triggered.connect(self.copyCreateScript)
         self.form.closeWindow.triggered.connect(self.closeWindow)
         self.form.helpWindow.triggered.connect(self.helpWindow)
         self.form.tabs.currentChanged.connect(self.tabChanged)
         self.form.tabs.tabCloseRequested.connect(self.closeTab)
         self.form.addRow.triggered.connect(self.addRow)
-
-        self.dialog.okOrCancel.button(QtGui.QDialogButtonBox.Ok).clicked.connect(self.openDatabase)
-        self.dialog.okOrCancel.button(QtGui.QDialogButtonBox.Cancel).clicked.connect(self.closeDatabaseDialog)
 
     def openFileDialog(self):
         """
@@ -123,36 +147,57 @@ class MyController(QMainWindow):
             self.generateNewTab(self.csvHandler.getContentAsArray(accessor.getAccessString()), accessor)
 
     def databaseDialog(self):
-        self.dialog.elections.clear()
-        self.dialog.elections.addItems(self.databaseHandler.getElections())
+        self.dialogWindow.setElections(self.databaseHandler.getElections())
         self.dialogWindow.show()
+        if self.dialogWindow.exec_():
+            self.dialogWindow.hide()
+            return self.dialogWindow.getElection()
 
-    def saveToDatabase(self):
-        self.dialogWindow.hide()
+    def handleDatabase(self):
+        pass
 
     def openDatabase(self):
-        access = self.dialog.elections.currentText()
+        access = self.databaseDialog()
         if access is not "":
             accessor = Accessor(access, ConnectionType.database)
             self.generateNewTab(self.databaseHandler.getConentAsArray(accessor.getAccessString()), accessor)
 
         self.closeDatabaseDialog()
 
-
-    def saveFile(self):
+    def saveResource(self):
+        handler = None
         if self.model.getTableCount()>0:
             if self.model.getCurrentTable().getAccessor():
-                self.csvHandler.setContent(self.model.getCurrentTable().getAccessor().getAccessString(), self.model.getCurrentTable().getData())
+                if self.model.getCurrentTable().getAccessor().getConnectionType()==ConnectionType.csv:
+                    handler = self.csvHandler
+                elif self.model.getCurrentTable().getAccessor().getConnectionType()==ConnectionType.database:
+                    handler = self.databaseHandler
+
+                handler.setContent(self.model.getCurrentTable().getAccessor().getAccessString(), self.model.getCurrentTable().getData())
+                self.model.getCurrentTable().setEdited(False)
             else:
-                self.saveAsFile()
+                self.saveAsResource()
+
+    def saveAsDatabase(self):
+        self.saveAsResource(ConnectionType.database)
 
     def saveAsFile(self):
-        if self.model.getTableCount()>0:
-            path = self.newFileDialog()
-            self.csvHandler.setContent(path, self.model.getCurrentTable().getData())
+        self.saveAsResource(ConnectionType.csv)
 
-            accessor = Accessor(path, ConnectionType.csv)
-            self.model.getCurrentTable().setAccessor(Accessor(path, ConnectionType.csv))
+    def saveAsResource(self, type=ConnectionType.csv):
+        accessor = None
+        if self.model.getTableCount()>0:
+            if type==ConnectionType.csv:
+                accessor = self.newFileDialog()
+                if accessor is not "":
+                    self.csvHandler.setContent(accessor, self.model.getCurrentTable().getData())
+            elif type==ConnectionType.database:
+                accessor = self.databaseDialog()
+                if accessor is not "":
+                    self.databaseHandler.setContent(accessor, self.model.getCurrentTable().getData())
+
+            accessor = Accessor(accessor, type)
+            self.model.getCurrentTable().setAccessor(accessor)
             self.model.getCurrentTable().setEdited(False)
 
             self.form.tabs.setTabText(self.model.getCurrentIndex(), accessor.getName())
