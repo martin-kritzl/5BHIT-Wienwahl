@@ -64,8 +64,17 @@ class DatabaseHandler(object):
         content = content[0]
         return content
 
+    def getElections(self):
+        elections = []
+        wahl = self.base.classes.wahl
+        for row in self.conn.execute(select([wahl])):
+            elections.append(row.wahltermin.strftime("%Y-%m-%d"))
 
-    def setContent(self, content, accessor):
+        return elections
+
+
+    # def setContent(self, content, accessor):
+
 
 
 

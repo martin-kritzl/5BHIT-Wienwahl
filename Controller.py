@@ -3,6 +3,7 @@ from CSVHandler import CSVHandler
 from DatabaseHandler import DatabaseHandler
 from WienwahlModel import WienwahlModel, TableModel, Accessor, ConnectionType
 import WienwahlView
+import DatabaseDialog
 import os
 
 __author__ = 'mkritzl'
@@ -15,8 +16,14 @@ class MyController(QMainWindow):
     def __init__(self, parent=None):
 
         super().__init__(parent)
+
         self.form = WienwahlView.Ui_MainWindow()
         self.form.setupUi(self)
+
+        self.dialog = DatabaseDialog.Ui_Form()
+        self.dialogWindow = QDialog()
+        self.dialog.setupUi(self.dialogWindow)
+
         self.model = WienwahlModel()
         self.csvHandler = CSVHandler()
         self.databaseHandler = DatabaseHandler('mysql+pymysql://wienwahl:wienwahl@localhost/wienwahl?charset=utf8')
@@ -28,13 +35,16 @@ class MyController(QMainWindow):
         self.form.openFile.triggered.connect(self.openFile)
         self.form.saveFile.triggered.connect(self.saveFile)
         self.form.saveAsFile.triggered.connect(self.saveAsFile)
-        self.form.openDatabase.triggered.connect(self.openDatabase)
+        self.form.openDatabase.triggered.connect(self.databaseDialog)
         self.form.copyCreateScript.triggered.connect(self.copyCreateScript)
         self.form.closeWindow.triggered.connect(self.closeWindow)
         self.form.helpWindow.triggered.connect(self.helpWindow)
         self.form.tabs.currentChanged.connect(self.tabChanged)
         self.form.tabs.tabCloseRequested.connect(self.closeTab)
         self.form.addRow.triggered.connect(self.addRow)
+
+        self.dialog.okOrCancel.button(QtGui.QDialogButtonBox.Ok).clicked.connect(self.openDatabase)
+        self.dialog.okOrCancel.button(QtGui.QDialogButtonBox.Cancel).clicked.connect(self.closeDatabaseDialog)
 
     def openFileDialog(self):
         """
@@ -48,6 +58,9 @@ class MyController(QMainWindow):
     def newFileDialog(self):
         path, _ = QFileDialog.getSaveFileName(self, "Save File", os.getcwd())
         return path
+
+    def closeDatabaseDialog(self):
+        self.dialogWindow.hide()
 
 
     def newFile(self):
@@ -109,11 +122,21 @@ class MyController(QMainWindow):
             accessor = Accessor(path, ConnectionType.csv)
             self.generateNewTab(self.csvHandler.getContentAsArray(accessor.getAccessString()), accessor)
 
+    def databaseDialog(self):
+        self.dialog.elections.clear()
+        self.dialog.elections.addItems(self.databaseHandler.getElections())
+        self.dialogWindow.show()
+
+    def saveToDatabase(self):
+        self.dialogWindow.hide()
+
     def openDatabase(self):
-        access = "2015-10-11"
+        access = self.dialog.elections.currentText()
         if access is not "":
             accessor = Accessor(access, ConnectionType.database)
             self.generateNewTab(self.databaseHandler.getConentAsArray(accessor.getAccessString()), accessor)
+
+        self.closeDatabaseDialog()
 
 
     def saveFile(self):
