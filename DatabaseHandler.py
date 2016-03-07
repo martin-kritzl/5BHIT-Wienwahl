@@ -1,6 +1,7 @@
+from datetime import date, datetime
 from itertools import chain
 from unittest.mock import Base
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, select, delete, insert
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 
@@ -74,7 +75,64 @@ class DatabaseHandler(object):
 
 
     def setContent(self, accessor,content):
-        pass
+        wahl = self.base.classes.wahl
+        sprengel = self.base.classes.sprengel
+        parteistimmen = self.base.classes.parteistimmen
+        bezirk = self.base.classes.bezirk
+        partei = self.base.classes.partei
+        parteistimmen = self.base.classes.parteistimmen
+        self.engine.execute("DELETE FROM wahl WHERE wahltermin='" + accessor + "'")
+
+        s = Session(self.engine)
+        try:
+            wahl_new = wahl(wahltermin=accessor, mandate=None)
+            s.add(wahl_new)
+
+            s.commit()
+
+            # wahltermin = datetime.strptime(accessor, '%Y-%m-%d')
+            #
+            # for row in content[1:]:
+            #
+            #     if len(row) > 8:
+            #
+            #         act_bezirk = select(bezirk).where(bezirknr=int(row[3]))
+            #         act_sprengel = select(sprengel).where(sprengelnr=int(row[4]))
+            #
+            #         sprengel_new = sprengel(wahltermin=wahltermin, bezirk=act_bezirk, sprengelnr=act_sprengel, wahlberechtigte=int(row[5]), abgeg_stimmen=int(row[6]), ung_stimmen=int(row[7]))
+            #         s.add(sprengel_new)
+            #
+            #         for act_partei in row[8:]:
+            #             act_partei = select(partei).where(parteiname=act_partei)
+            #             parteistimmen_new = parteistimmen(wahltermin=wahltermin, bezirknr=act_bezirk, sprengelnr=act_sprengel, parteiname=act_partei)
+            #             s.add(parteistimmen_new)
+            #
+            # s.commit()
+
+            countpartei=8
+
+            for row in content[1:]:
+                self.conn.execute("INSERT INTO sprengel (wahltermin, bezirknr, sprengelnr, wahlberechtigte, abgeg_stimmen, ung_stimmen) VALUES('" + str(accessor) + "', " + str(row[3]) + ", " + str(row[4]) + ", " + str(row[5]) + ", " + str(row[6]) + ", " + str(row[7]) + ");")
+                countpartei=8
+
+                for act_partei in content[0][8:]:
+                    self.conn.execute("INSERT INTO parteistimmen (wahltermin, bezirknr, sprengelnr, parteiname, menge) VALUES('" + str(accessor) + "', " + str(row[3]) + ", " + str(row[4]) + ", '" + str(act_partei) + "', " + str(row[countpartei]) + ");")
+                    countpartei+=1
+
+
+        except:
+            s.rollback()
+            raise
+        finally:
+            s.close()
+
+        #
+        #
+        # spregel = [item[4] for item in content]
+        # for row in spregel:
+        #     self.conn.execute(insert).values([])
+
+
 
 
 

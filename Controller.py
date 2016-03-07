@@ -1,3 +1,4 @@
+from threading import Thread
 from PySide import QtGui
 from CSVHandler import CSVHandler
 from DatabaseHandler import DatabaseHandler
@@ -59,7 +60,7 @@ class MyController(QMainWindow):
 
         self.form.newFile.triggered.connect(self.newFile)
         self.form.openFile.triggered.connect(self.openFile)
-        self.form.saveFile.triggered.connect(self.saveResource)
+        self.form.saveFile.triggered.connect(self.saveResourceThread)
         self.form.saveAsFile.triggered.connect(self.saveAsFile)
         self.form.saveAsDatabase.triggered.connect(self.saveAsDatabase)
         self.form.openDatabase.triggered.connect(self.openDatabase)
@@ -164,7 +165,21 @@ class MyController(QMainWindow):
 
         self.closeDatabaseDialog()
 
+    def saveAsResourceThread(self, type):
+        # Problem with gui
+        # thread = Thread(target=self.saveAsResource, args=(type, ))
+        # thread.start()
+        # thread.join()
+        self.saveAsResource(type)
+
+    def saveResourceThread(self):
+        thread = Thread(target=self.saveResource)
+        thread.start()
+        thread.join()
+
+
     def saveResource(self):
+        self.model.getCurrentTable().setSaved(False)
         handler = None
         if self.model.getTableCount()>0:
             if self.model.getCurrentTable().getAccessor():
@@ -178,13 +193,17 @@ class MyController(QMainWindow):
             else:
                 self.saveAsResource()
 
+        self.model.getCurrentTable().setSaved(True)
+
+
     def saveAsDatabase(self):
-        self.saveAsResource(ConnectionType.database)
+        self.saveAsResourceThread(ConnectionType.database)
 
     def saveAsFile(self):
-        self.saveAsResource(ConnectionType.csv)
+        self.saveAsResourceThread(ConnectionType.csv)
 
     def saveAsResource(self, type=ConnectionType.csv):
+        self.model.getCurrentTable().setSaved(False)
         accessor = None
         if self.model.getTableCount()>0:
             if type==ConnectionType.csv:
@@ -202,6 +221,8 @@ class MyController(QMainWindow):
 
             self.form.tabs.setTabText(self.model.getCurrentIndex(), accessor.getName())
             self.form.tabs.setTabToolTip(self.model.getCurrentIndex(), accessor.getName())
+
+        self.model.getCurrentTable().setSaved(True)
 
 
 
@@ -256,7 +277,7 @@ class MyController(QMainWindow):
             reply = QtGui.QMessageBox.question(self, 'Message', quit_msg, QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
 
             if reply == QtGui.QMessageBox.Save:
-                self.saveFile()
+                self.saveRessource()
                 self.removeTab(index)
             elif reply == QtGui.QMessageBox.Yes:
                 self.removeTab(index)

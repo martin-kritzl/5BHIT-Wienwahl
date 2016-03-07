@@ -45,6 +45,13 @@ class WienwahlModel(object):
     def getTableCount(self):
         return len(self.tables)
 
+    def allSaved(self):
+        saved = True
+        for table in self.tables:
+            if table.isSaved()==False:
+                saved = False
+        return saved
+
 
 class TableModel(QAbstractTableModel):
     """
@@ -54,6 +61,7 @@ class TableModel(QAbstractTableModel):
     header = []
     accessor = None
     edited = False
+    saved = True
 
     def __init__(self, parent,  data, accessor, *args):
         QAbstractTableModel.__init__(self, parent, *args)
@@ -62,6 +70,12 @@ class TableModel(QAbstractTableModel):
             self.header = data[0]
 
         self.accessor = accessor
+
+    def isSaved(self):
+        return self.saved
+
+    def setSaved(self, saved):
+        self.saved = saved
 
     def getAccessor(self):
         return self.accessor
