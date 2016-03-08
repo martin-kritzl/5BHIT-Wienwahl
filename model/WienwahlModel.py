@@ -62,6 +62,7 @@ class TableModel(QAbstractTableModel):
     accessor = None
     edited = False
     saved = True
+    viewName = None
 
     def __init__(self, parent,  data, accessor, *args):
         QAbstractTableModel.__init__(self, parent, *args)
@@ -70,6 +71,12 @@ class TableModel(QAbstractTableModel):
             self.header = data[0]
 
         self.accessor = accessor
+
+    def setView(self, view):
+        self.view = view
+
+    def getView(self):
+        return self.view
 
     def isSaved(self):
         return self.saved

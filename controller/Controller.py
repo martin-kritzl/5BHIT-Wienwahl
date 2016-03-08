@@ -2,6 +2,7 @@ from threading import Thread
 import os
 
 from PySide import QtGui
+from command.command import EditCommand
 
 from csvhandler.CSVHandler import CSVHandler
 from command.CopyPaste import PasteAction
@@ -56,7 +57,7 @@ class MyController(QMainWindow):
         self.databaseHandler = DatabaseHandler('mysql+pymysql://wienwahl:wienwahl@localhost/wienwahl?charset=utf8')
 
         self.databaseStep = None
-        self.undoStack = []
+        self.undoStack = QUndoStack()
 
 
         self.form.newFile.triggered.connect(self.newFile)
@@ -142,7 +143,9 @@ class MyController(QMainWindow):
             table_model = TableModel(tab, content, accessor)
 
             self.model.setCurrentTableAndAdd(table_model)
-            self.formatTable(self.appendTable(table_model, tab))
+            table_view = self.appendTable(table_model, tab)
+            self.formatTable(table_view)
+            self.model.getCurrentTable().setView(table_view)
             self.model.getCurrentTable().setEdited(False)
 
     def openFile(self):
@@ -207,8 +210,6 @@ class MyController(QMainWindow):
     def saveAsDatabase(self):
         self.saveAsResourceThread(ConnectionType.database)
 
-        QStyledItemDelegate
-
     def saveAsFile(self):
         self.saveAsResourceThread(ConnectionType.csv)
 
@@ -261,17 +262,37 @@ class MyController(QMainWindow):
         self.model.getCurrentTable().removeRows(start, amount)
 
     def copy(self):
-        pass
+        selectedIndexes = self.model.getCurrentTable().getView().selectionModel().selectedIndexes()
+        if len(selectedIndexes) == 0:
+            return
+
+        sys_clip = QApplication.clipboard()
+        selection = selectedIndexes[0]
+        selected_text = str(self.model.getCurrentTable().data(selection))
+        sys_clip.setText(selected_text)
+
 
     def paste(self):
+        selectedIndexes = self.model.getCurrentTable().getView().selectionModel().selectedIndexes()
+        if len(selectedIndexes) == 0:
+            return
 
-        PasteAction(QTableView(), self.undoStack).paste_clipboard_to_cell()
+        sys_clip = QApplication.clipboard()
+        value = str(sys_clip.text())
+        index = selectedIndexes[0]
+        cmd = EditCommand(self.model.getCurrentTable(), index)
+        cmd.newValue(value)
+        self.undoStack.push(cmd)
+        self.model.getCurrentTable().getView().reset()
+        self.model.getCurrentTable().setEdited(True)
 
     def undo(self):
-        pass
+        self.undoStack.undo()
+        self.model.getCurrentTable().getView().reset()
 
     def redo(self):
-        pass
+        self.undoStack.redo()
+        self.model.getCurrentTable().getView().reset()
 
     def closeWindow(self):
         pass
