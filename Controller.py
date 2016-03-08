@@ -175,25 +175,35 @@ class MyController(QMainWindow):
     def saveResourceThread(self):
         thread = Thread(target=self.saveResource)
         thread.start()
-        thread.join()
+        # thread.join()
+
+    def setSavingStatus(self):
+        print("Set saving status")
+        if self.model.allSaved():
+            self.form.statusbar.showMessage('saved')
+        else:
+            self.form.statusbar.showMessage('saving...')
 
 
-    def saveResource(self):
+    def saveResource(self, accessor=None):
+        if not accessor:
+            accessor = self.model.getCurrentTable().getAccessor()
         self.model.getCurrentTable().setSaved(False)
+        # self.setSavingStatus()
         handler = None
         if self.model.getTableCount()>0:
-            if self.model.getCurrentTable().getAccessor():
-                if self.model.getCurrentTable().getAccessor().getConnectionType()==ConnectionType.csv:
-                    handler = self.csvHandler
-                elif self.model.getCurrentTable().getAccessor().getConnectionType()==ConnectionType.database:
-                    handler = self.databaseHandler
 
-                handler.setContent(self.model.getCurrentTable().getAccessor().getAccessString(), self.model.getCurrentTable().getData())
-                self.model.getCurrentTable().setEdited(False)
-            else:
-                self.saveAsResource()
+            if accessor.getConnectionType()==ConnectionType.csv:
+                handler = self.csvHandler
+            elif accessor.getConnectionType()==ConnectionType.database:
+                handler = self.databaseHandler
+
+            handler.setContent(accessor.getAccessString(), self.model.getCurrentTable().getData())
+            self.model.getCurrentTable().setEdited(False)
+
 
         self.model.getCurrentTable().setSaved(True)
+        # self.setSavingStatus()
 
 
     def saveAsDatabase(self):
@@ -203,26 +213,19 @@ class MyController(QMainWindow):
         self.saveAsResourceThread(ConnectionType.csv)
 
     def saveAsResource(self, type=ConnectionType.csv):
-        self.model.getCurrentTable().setSaved(False)
         accessor = None
         if self.model.getTableCount()>0:
             if type==ConnectionType.csv:
-                accessor = self.newFileDialog()
-                if accessor is not "":
-                    self.csvHandler.setContent(accessor, self.model.getCurrentTable().getData())
+                accessor = Accessor(self.newFileDialog(), ConnectionType.csv)
             elif type==ConnectionType.database:
-                accessor = self.databaseDialog()
-                if accessor is not "":
-                    self.databaseHandler.setContent(accessor, self.model.getCurrentTable().getData())
+                accessor = Accessor(self.databaseDialog(), ConnectionType.database)
 
-            accessor = Accessor(accessor, type)
-            self.model.getCurrentTable().setAccessor(accessor)
-            self.model.getCurrentTable().setEdited(False)
+            thread = Thread(target=self.saveResource, args=(accessor, ))
+            thread.start()
 
             self.form.tabs.setTabText(self.model.getCurrentIndex(), accessor.getName())
             self.form.tabs.setTabToolTip(self.model.getCurrentIndex(), accessor.getName())
 
-        self.model.getCurrentTable().setSaved(True)
 
 
 
