@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'Overview.ui'
 #
-# Created: Tue Mar 08 10:19:21 2016
+# Created: Tue Mar 08 14:47:07 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -51,14 +51,20 @@ class Ui_MainWindow(object):
         self.newFile.setObjectName("newFile")
         self.closeWindow = QtGui.QAction(MainWindow)
         self.closeWindow.setObjectName("closeWindow")
-        self.copyCreateScript = QtGui.QAction(MainWindow)
-        self.copyCreateScript.setObjectName("copyCreateScript")
+        self.copy = QtGui.QAction(MainWindow)
+        self.copy.setObjectName("copy")
         self.addRow = QtGui.QAction(MainWindow)
         self.addRow.setObjectName("addRow")
         self.openDatabase = QtGui.QAction(MainWindow)
         self.openDatabase.setObjectName("openDatabase")
         self.saveAsDatabase = QtGui.QAction(MainWindow)
         self.saveAsDatabase.setObjectName("saveAsDatabase")
+        self.paste = QtGui.QAction(MainWindow)
+        self.paste.setObjectName("paste")
+        self.undo = QtGui.QAction(MainWindow)
+        self.undo.setObjectName("undo")
+        self.redo = QtGui.QAction(MainWindow)
+        self.redo.setObjectName("redo")
         self.menuFile.addAction(self.openFile)
         self.menuFile.addAction(self.saveFile)
         self.menuFile.addAction(self.saveAsFile)
@@ -66,8 +72,12 @@ class Ui_MainWindow(object):
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.openDatabase)
         self.menuFile.addAction(self.saveAsDatabase)
-        self.menuEdit.addAction(self.copyCreateScript)
+        self.menuEdit.addAction(self.copy)
+        self.menuEdit.addAction(self.paste)
         self.menuEdit.addAction(self.addRow)
+        self.menuEdit.addSeparator()
+        self.menuEdit.addAction(self.undo)
+        self.menuEdit.addAction(self.redo)
         self.menuWindows.addAction(self.closeWindow)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
@@ -103,9 +113,9 @@ class Ui_MainWindow(object):
         self.closeWindow.setText(QtGui.QApplication.translate("MainWindow", "Close", None, QtGui.QApplication.UnicodeUTF8))
         self.closeWindow.setStatusTip(QtGui.QApplication.translate("MainWindow", "Close the window", None, QtGui.QApplication.UnicodeUTF8))
         self.closeWindow.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Q", None, QtGui.QApplication.UnicodeUTF8))
-        self.copyCreateScript.setText(QtGui.QApplication.translate("MainWindow", "Copy", None, QtGui.QApplication.UnicodeUTF8))
-        self.copyCreateScript.setStatusTip(QtGui.QApplication.translate("MainWindow", "Copy the displayed content", None, QtGui.QApplication.UnicodeUTF8))
-        self.copyCreateScript.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+C", None, QtGui.QApplication.UnicodeUTF8))
+        self.copy.setText(QtGui.QApplication.translate("MainWindow", "Copy", None, QtGui.QApplication.UnicodeUTF8))
+        self.copy.setStatusTip(QtGui.QApplication.translate("MainWindow", "Copy the displayed content", None, QtGui.QApplication.UnicodeUTF8))
+        self.copy.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+C", None, QtGui.QApplication.UnicodeUTF8))
         self.addRow.setText(QtGui.QApplication.translate("MainWindow", "Add Row", None, QtGui.QApplication.UnicodeUTF8))
         self.addRow.setStatusTip(QtGui.QApplication.translate("MainWindow", "Add a new Row to the Table", None, QtGui.QApplication.UnicodeUTF8))
         self.addRow.setShortcut(QtGui.QApplication.translate("MainWindow", "Shift+Return", None, QtGui.QApplication.UnicodeUTF8))
@@ -113,4 +123,10 @@ class Ui_MainWindow(object):
         self.openDatabase.setShortcut(QtGui.QApplication.translate("MainWindow", "Alt+O", None, QtGui.QApplication.UnicodeUTF8))
         self.saveAsDatabase.setText(QtGui.QApplication.translate("MainWindow", "Save As Database", None, QtGui.QApplication.UnicodeUTF8))
         self.saveAsDatabase.setShortcut(QtGui.QApplication.translate("MainWindow", "Alt+S", None, QtGui.QApplication.UnicodeUTF8))
+        self.paste.setText(QtGui.QApplication.translate("MainWindow", "Paste", None, QtGui.QApplication.UnicodeUTF8))
+        self.paste.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+V", None, QtGui.QApplication.UnicodeUTF8))
+        self.undo.setText(QtGui.QApplication.translate("MainWindow", "Undo", None, QtGui.QApplication.UnicodeUTF8))
+        self.undo.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Z", None, QtGui.QApplication.UnicodeUTF8))
+        self.redo.setText(QtGui.QApplication.translate("MainWindow", "Redo", None, QtGui.QApplication.UnicodeUTF8))
+        self.redo.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+Z", None, QtGui.QApplication.UnicodeUTF8))
 

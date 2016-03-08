@@ -33,7 +33,7 @@
     <item row="0" column="0">
      <widget class="QLabel" name="label">
       <property name="text">
-       <string>Which date the election has?</string>
+       <string>Which date does the election have?</string>
       </property>
      </widget>
     </item>

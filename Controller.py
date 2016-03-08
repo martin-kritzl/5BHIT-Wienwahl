@@ -1,6 +1,7 @@
 from threading import Thread
 from PySide import QtGui
 from CSVHandler import CSVHandler
+from CopyPaste import PasteAction
 from DatabaseHandler import DatabaseHandler
 from WienwahlModel import WienwahlModel, TableModel, Accessor, ConnectionType
 import WienwahlView
@@ -54,8 +55,7 @@ class MyController(QMainWindow):
         self.databaseHandler = DatabaseHandler('mysql+pymysql://wienwahl:wienwahl@localhost/wienwahl?charset=utf8')
 
         self.databaseStep = None
-
-
+        self.undoStack = []
 
 
         self.form.newFile.triggered.connect(self.newFile)
@@ -64,7 +64,10 @@ class MyController(QMainWindow):
         self.form.saveAsFile.triggered.connect(self.saveAsFile)
         self.form.saveAsDatabase.triggered.connect(self.saveAsDatabase)
         self.form.openDatabase.triggered.connect(self.openDatabase)
-        self.form.copyCreateScript.triggered.connect(self.copyCreateScript)
+        self.form.copy.triggered.connect(self.copy)
+        self.form.paste.triggered.connect(self.paste)
+        self.form.undo.triggered.connect(self.undo)
+        self.form.redo.triggered.connect(self.redo)
         self.form.closeWindow.triggered.connect(self.closeWindow)
         self.form.helpWindow.triggered.connect(self.helpWindow)
         self.form.tabs.currentChanged.connect(self.tabChanged)
@@ -166,16 +169,10 @@ class MyController(QMainWindow):
         self.closeDatabaseDialog()
 
     def saveAsResourceThread(self, type):
-        # Problem with gui
-        # thread = Thread(target=self.saveAsResource, args=(type, ))
-        # thread.start()
-        # thread.join()
         self.saveAsResource(type)
 
     def saveResourceThread(self):
-        thread = Thread(target=self.saveResource)
-        thread.start()
-        # thread.join()
+        self.saveResource()
 
     def setSavingStatus(self):
         print("Set saving status")
@@ -260,7 +257,17 @@ class MyController(QMainWindow):
         start, amount = self.get_selection()
         self.model.getCurrentTable().removeRows(start, amount)
 
-    def copyCreateScript(self):
+    def copy(self):
+        pass
+
+    def paste(self):
+
+        PasteAction(QTableView(), self.undoStack).paste_clipboard_to_cell()
+
+    def undo(self):
+        pass
+
+    def redo(self):
         pass
 
     def closeWindow(self):

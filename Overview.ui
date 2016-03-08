@@ -61,8 +61,12 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="copyCreateScript"/>
+    <addaction name="copy"/>
+    <addaction name="paste"/>
     <addaction name="addRow"/>
+    <addaction name="separator"/>
+    <addaction name="undo"/>
+    <addaction name="redo"/>
    </widget>
    <widget class="QMenu" name="menuWindows">
     <property name="acceptDrops">
@@ -148,7 +152,7 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="copyCreateScript">
+  <action name="copy">
    <property name="text">
     <string>Copy</string>
    </property>
@@ -184,6 +188,30 @@
    </property>
    <property name="shortcut">
     <string>Alt+S</string>
+   </property>
+  </action>
+  <action name="paste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="undo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="redo">
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Z</string>
    </property>
   </action>
  </widget>
