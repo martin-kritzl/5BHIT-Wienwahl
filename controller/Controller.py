@@ -2,7 +2,7 @@ from threading import Thread
 import os
 
 from PySide import QtGui
-from command.command import EditCommand
+from command.command import EditCommand, InsertRowsCommand, RemoveRowsCommand
 
 from csvhandler.CSVHandler import CSVHandler
 from command.CopyPaste import PasteAction
@@ -75,6 +75,7 @@ class MyController(QMainWindow):
         self.form.tabs.currentChanged.connect(self.tabChanged)
         self.form.tabs.tabCloseRequested.connect(self.closeTab)
         self.form.addRow.triggered.connect(self.addRow)
+        self.form.removeRow.triggered.connect(self.removeRows)
 
     def openFileDialog(self):
         """
@@ -239,11 +240,11 @@ class MyController(QMainWindow):
         return [index for index in selected_indexes if not index.column()]
 
     def get_selection(self):
-        zero_column_selected_indexes = self.get_zero_column_selected_indexes(self.form["table"+self.model.getCurrentIndex()])
+        zero_column_selected_indexes = self.get_zero_column_selected_indexes(self.model.getCurrentTable().getView())
         if not zero_column_selected_indexes:
-            return self.table_model.rowCount(self), 1
+            return self.model.getCurrentTable().rowCount(self), 1
         first_zero_column_selected_index = zero_column_selected_indexes[0]
-        zero_column_selected_indexes = self.get_zero_column_selected_indexes(self.view.tableView)
+        zero_column_selected_indexes = self.get_zero_column_selected_indexes(self.model.getCurrentTable().getView())
 
         if not first_zero_column_selected_index or not first_zero_column_selected_index.isValid():
             return False
@@ -255,11 +256,16 @@ class MyController(QMainWindow):
     def addRow(self):
         table = self.model.getCurrentTable()
         if table:
-            table.insertRow(table.rowCount(table))
+            start, amount = self.get_selection()
+            self.undoStack.push(InsertRowsCommand(self.model.getCurrentTable(), start, 1))
+            self.editedSomething()
 
     def removeRows(self):
+        if len(self.model.getCurrentTable().getContent()) == 0:
+            return
         start, amount = self.get_selection()
-        self.model.getCurrentTable().removeRows(start, amount)
+        self.undoStack.push(RemoveRowsCommand(self.model.getCurrentTable(), start, amount))
+        self.editedSomething()
 
     def copy(self):
         selectedIndexes = self.model.getCurrentTable().getView().selectionModel().selectedIndexes()
@@ -283,6 +289,9 @@ class MyController(QMainWindow):
         cmd = EditCommand(self.model.getCurrentTable(), index)
         cmd.newValue(value)
         self.undoStack.push(cmd)
+        self.editedSomething()
+
+    def editedSomething(self):
         self.model.getCurrentTable().getView().reset()
         self.model.getCurrentTable().setEdited(True)
 

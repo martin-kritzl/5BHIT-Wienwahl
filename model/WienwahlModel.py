@@ -108,7 +108,9 @@ class TableModel(QAbstractTableModel):
         return False
 
     def setContent(self, content):
+        self.emit(SIGNAL("layoutToBeChanged()"))
         self.content = content
+        self.emit(SIGNAL("layoutChanged()"))
 
     def getContent(self):
         return self.content
@@ -116,8 +118,13 @@ class TableModel(QAbstractTableModel):
     def getData(self):
         return [self.header] + self.content
 
+    def getHeader(self):
+        return self.header
+
     def setHeader(self, header):
+        self.emit(SIGNAL("layoutToBeChanged()"))
         self.header = header
+        self.emit(SIGNAL("layoutChanged()"))
 
     def rowCount(self, parent):
         return len(self.content)
@@ -136,7 +143,7 @@ class TableModel(QAbstractTableModel):
             return None
 
 
-    def insertRow(self, row, parent=None, count=1):
+    def insertRows(self, row, parent=None, count=1):
         self.beginInsertRows(QModelIndex(), row, row + count - 1)
         self.content.insert(row, [None] * self.columnCount(None))
         self.endInsertRows()

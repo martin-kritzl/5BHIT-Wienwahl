@@ -38,9 +38,31 @@ class EditCommand(QUndoCommand):
         self.__newValue = newValue
 
 
-class InsertRowCommand(QUndoCommand):
-    pass
+class InsertRowsCommand(QUndoCommand):
+    def __init__(self, model, index, amount):
+        QUndoCommand.__init__(self)
+        self.__model = model
+        self.__index = index
+        self.__amount = amount
+
+    def redo(self):
+        self.__model.insertRows(self.__index, self.__amount)
+
+    def undo(self):
+        self.__model.removeRows(self.__index, self.__amount)
 
 
 class RemoveRowsCommand(QUndoCommand):
-    pass
+    def __init__(self, model, index, amount):
+        QUndoCommand.__init__(self)
+        self.__model = model
+        self.__index = index
+        self.__amount = amount
+        self.__oldList = None
+
+    def redo(self):
+        self.__oldList = list(self.__model.getContent())
+        self.__model.removeRows(self.__index, self.__amount)
+
+    def undo(self):
+        self.__model.setContent(self.__oldList)

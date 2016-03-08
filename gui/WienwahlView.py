@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'Overview.ui'
+# Form implementation generated from reading ui file 'gui/Overview.ui'
 #
-# Created: Tue Mar 08 14:47:07 2016
+# Created: Tue Mar 08 22:08:56 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -65,6 +65,8 @@ class Ui_MainWindow(object):
         self.undo.setObjectName("undo")
         self.redo = QtGui.QAction(MainWindow)
         self.redo.setObjectName("redo")
+        self.removeRow = QtGui.QAction(MainWindow)
+        self.removeRow.setObjectName("removeRow")
         self.menuFile.addAction(self.openFile)
         self.menuFile.addAction(self.saveFile)
         self.menuFile.addAction(self.saveAsFile)
@@ -74,7 +76,9 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.saveAsDatabase)
         self.menuEdit.addAction(self.copy)
         self.menuEdit.addAction(self.paste)
+        self.menuEdit.addSeparator()
         self.menuEdit.addAction(self.addRow)
+        self.menuEdit.addAction(self.removeRow)
         self.menuEdit.addSeparator()
         self.menuEdit.addAction(self.undo)
         self.menuEdit.addAction(self.redo)
@@ -129,4 +133,6 @@ class Ui_MainWindow(object):
         self.undo.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Z", None, QtGui.QApplication.UnicodeUTF8))
         self.redo.setText(QtGui.QApplication.translate("MainWindow", "Redo", None, QtGui.QApplication.UnicodeUTF8))
         self.redo.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+Z", None, QtGui.QApplication.UnicodeUTF8))
+        self.removeRow.setText(QtGui.QApplication.translate("MainWindow", "Delte Row", None, QtGui.QApplication.UnicodeUTF8))
+        self.removeRow.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+D", None, QtGui.QApplication.UnicodeUTF8))
 

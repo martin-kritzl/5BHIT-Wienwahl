@@ -63,7 +63,9 @@
     </property>
     <addaction name="copy"/>
     <addaction name="paste"/>
+    <addaction name="separator"/>
     <addaction name="addRow"/>
+    <addaction name="removeRow"/>
     <addaction name="separator"/>
     <addaction name="undo"/>
     <addaction name="redo"/>
@@ -212,6 +214,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+Z</string>
+   </property>
+  </action>
+  <action name="removeRow">
+   <property name="text">
+    <string>Delte Row</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>
