@@ -3,6 +3,7 @@ import os
 
 from PySide import QtGui
 from command.command import EditCommand, InsertRowsCommand, RemoveRowsCommand
+from command.delegate import ItemDelegate
 
 from csvhandler.CSVHandler import CSVHandler
 from command.CopyPaste import PasteAction
@@ -131,6 +132,7 @@ class MyController(QMainWindow):
         table_view = QTableView()
         table_view.setObjectName("table"+str(self.model.getTableCount()))
         table_view.setModel(table_model)
+        table_view.setItemDelegate(ItemDelegate(self.undoStack))
 
         layout = QVBoxLayout(self)
         layout.addWidget(table_view)
@@ -167,7 +169,7 @@ class MyController(QMainWindow):
 
     def openDatabase(self):
         access = self.databaseDialog()
-        if access is not "":
+        if access:
             accessor = Accessor(access, ConnectionType.database)
             self.generateNewTab(self.databaseHandler.getConentAsArray(accessor.getAccessString()), accessor)
 

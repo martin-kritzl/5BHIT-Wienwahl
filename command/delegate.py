@@ -1,6 +1,5 @@
 from PySide.QtGui import QStyledItemDelegate, QUndoStack, QTextEdit, QLineEdit
-
-from command import EditCommand
+from command.command import EditCommand
 
 
 class ItemDelegate(QStyledItemDelegate):
