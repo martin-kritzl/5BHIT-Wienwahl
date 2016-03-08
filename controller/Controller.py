@@ -1,12 +1,13 @@
 from threading import Thread
-from PySide import QtGui
-from CSVHandler import CSVHandler
-from CopyPaste import PasteAction
-from DatabaseHandler import DatabaseHandler
-from WienwahlModel import WienwahlModel, TableModel, Accessor, ConnectionType
-import WienwahlView
-import DatabaseDialog
 import os
+
+from PySide import QtGui
+
+from csvhandler.CSVHandler import CSVHandler
+from command.CopyPaste import PasteAction
+from database.DatabaseHandler import DatabaseHandler
+from model.WienwahlModel import WienwahlModel, TableModel, Accessor, ConnectionType
+from gui import DatabaseDialog, WienwahlView
 
 __author__ = 'mkritzl'
 
@@ -205,6 +206,8 @@ class MyController(QMainWindow):
 
     def saveAsDatabase(self):
         self.saveAsResourceThread(ConnectionType.database)
+
+        QStyledItemDelegate
 
     def saveAsFile(self):
         self.saveAsResourceThread(ConnectionType.csv)

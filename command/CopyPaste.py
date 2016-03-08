@@ -1,5 +1,6 @@
 from PySide.QtGui import QApplication, QAction
-from UndoRedo import EditCommand
+
+from command.UndoRedo import EditCommand
 
 
 class PasteAction(QAction):

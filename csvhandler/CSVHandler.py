@@ -1,5 +1,5 @@
-import csv
 import collections
+import csv
 from itertools import islice
 
 __author__ = 'mkritzl'
