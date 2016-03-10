@@ -2,7 +2,7 @@ from threading import Thread
 import os
 
 from PySide import QtGui
-from command.command import EditCommand, InsertRowsCommand, RemoveRowsCommand
+from command.command import EditCommand, InsertRowsCommand, RemoveRowsCommand, DuplicateRowCommand
 from command.delegate import ItemDelegate
 
 from csvhandler.CSVHandler import CSVHandler
@@ -76,6 +76,7 @@ class MyController(QMainWindow):
         self.form.tabs.currentChanged.connect(self.tabChanged)
         self.form.tabs.tabCloseRequested.connect(self.closeTab)
         self.form.addRow.triggered.connect(self.addRow)
+        self.form.duplicateRow.triggered.connect(self.duplicateRow)
         self.form.removeRow.triggered.connect(self.removeRows)
 
     def openFileDialog(self):
@@ -261,6 +262,13 @@ class MyController(QMainWindow):
             start, amount = self.get_selection()
             self.undoStack.push(InsertRowsCommand(self.model.getCurrentTable(), start, 1))
             self.editedSomething()
+
+    def duplicateRow(self):
+        if len(self.model.getCurrentTable().getContent()) == 0:
+            return
+        start, amount = self.get_selection()
+        self.undoStack.push(DuplicateRowCommand(self.model.getCurrentTable(), start))
+        self.editedSomething()
 
     def removeRows(self):
         if len(self.model.getCurrentTable().getContent()) == 0:

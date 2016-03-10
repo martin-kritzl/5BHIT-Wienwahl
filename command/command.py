@@ -51,6 +51,19 @@ class InsertRowsCommand(QUndoCommand):
     def undo(self):
         self.__model.removeRows(self.__index, self.__amount)
 
+class DuplicateRowCommand(QUndoCommand):
+    def __init__(self, model, index):
+        QUndoCommand.__init__(self)
+        self.__model = model
+        self.__index = index
+        self.__last_row = list(model.getContent()[index])
+
+    def redo(self):
+        self.__model.getContent().insert(self.__index+1, self.__last_row)
+
+    def undo(self):
+        self.__model.getContent().pop(self.__index+1)
+
 
 class RemoveRowsCommand(QUndoCommand):
     def __init__(self, model, index, amount):

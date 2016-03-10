@@ -65,6 +65,7 @@
     <addaction name="paste"/>
     <addaction name="separator"/>
     <addaction name="addRow"/>
+    <addaction name="duplicateRow"/>
     <addaction name="removeRow"/>
     <addaction name="separator"/>
     <addaction name="undo"/>
@@ -219,6 +220,14 @@
   <action name="removeRow">
    <property name="text">
     <string>Delte Row</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
+  </action>
+  <action name="duplicateRow">
+   <property name="text">
+    <string>Duplicate Row</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
