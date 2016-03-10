@@ -63,6 +63,7 @@
     </property>
     <addaction name="copy"/>
     <addaction name="paste"/>
+    <addaction name="cut"/>
     <addaction name="separator"/>
     <addaction name="addRow"/>
     <addaction name="duplicateRow"/>
@@ -231,6 +232,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="cut">
+   <property name="text">
+    <string>Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
    </property>
   </action>
  </widget>

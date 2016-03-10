@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/Overview.ui'
 #
-# Created: Thu Mar 10 13:04:49 2016
+# Created: Thu Mar 10 13:11:58 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -69,6 +69,8 @@ class Ui_MainWindow(object):
         self.removeRow.setObjectName("removeRow")
         self.duplicateRow = QtGui.QAction(MainWindow)
         self.duplicateRow.setObjectName("duplicateRow")
+        self.cut = QtGui.QAction(MainWindow)
+        self.cut.setObjectName("cut")
         self.menuFile.addAction(self.openFile)
         self.menuFile.addAction(self.saveFile)
         self.menuFile.addAction(self.saveAsFile)
@@ -78,6 +80,7 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.saveAsDatabase)
         self.menuEdit.addAction(self.copy)
         self.menuEdit.addAction(self.paste)
+        self.menuEdit.addAction(self.cut)
         self.menuEdit.addSeparator()
         self.menuEdit.addAction(self.addRow)
         self.menuEdit.addAction(self.duplicateRow)
@@ -140,4 +143,6 @@ class Ui_MainWindow(object):
         self.removeRow.setShortcut(QtGui.QApplication.translate("MainWindow", "Del", None, QtGui.QApplication.UnicodeUTF8))
         self.duplicateRow.setText(QtGui.QApplication.translate("MainWindow", "Duplicate Row", None, QtGui.QApplication.UnicodeUTF8))
         self.duplicateRow.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+D", None, QtGui.QApplication.UnicodeUTF8))
+        self.cut.setText(QtGui.QApplication.translate("MainWindow", "Cut", None, QtGui.QApplication.UnicodeUTF8))
+        self.cut.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+X", None, QtGui.QApplication.UnicodeUTF8))
 

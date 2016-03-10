@@ -37,7 +37,6 @@ class EditCommand(QUndoCommand):
     def newValue(self, newValue):
         self.__newValue = newValue
 
-
 class InsertRowsCommand(QUndoCommand):
     def __init__(self, model, index, amount):
         QUndoCommand.__init__(self)

@@ -68,6 +68,7 @@ class MyController(QMainWindow):
         self.form.saveAsDatabase.triggered.connect(self.saveAsDatabase)
         self.form.openDatabase.triggered.connect(self.openDatabase)
         self.form.copy.triggered.connect(self.copy)
+        self.form.cut.triggered.connect(self.cut)
         self.form.paste.triggered.connect(self.paste)
         self.form.undo.triggered.connect(self.undo)
         self.form.redo.triggered.connect(self.redo)
@@ -275,6 +276,21 @@ class MyController(QMainWindow):
             return
         start, amount = self.get_selection()
         self.undoStack.push(RemoveRowsCommand(self.model.getCurrentTable(), start, amount))
+        self.editedSomething()
+
+    def cut(self):
+        selectedIndexes = self.model.getCurrentTable().getView().selectionModel().selectedIndexes()
+        if len(selectedIndexes) == 0:
+            return
+
+        sys_clip = QApplication.clipboard()
+        selection = selectedIndexes[0]
+        selected_text = str(self.model.getCurrentTable().data(selection))
+        sys_clip.setText(selected_text)
+
+        cmd = EditCommand(self.model.getCurrentTable(), selection)
+        cmd.newValue("")
+        self.undoStack.push(cmd)
         self.editedSomething()
 
     def copy(self):
