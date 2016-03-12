@@ -2,45 +2,21 @@ from threading import Thread
 import os
 
 from PySide import QtGui
+from datetime import datetime
 from command.command import EditCommand, InsertRowsCommand, RemoveRowsCommand, DuplicateRowCommand
 from command.delegate import ItemDelegate
+from controller.DatabasedialogController import DatabaseDialogController
 
 from csvhandler.CSVHandler import CSVHandler
 from command.CopyPaste import PasteAction
 from database.DatabaseHandler import DatabaseHandler
 from model.WienwahlModel import WienwahlModel, TableModel, Accessor, ConnectionType
-from gui import DatabaseDialog, WienwahlView
+from gui import WienwahlView
 
 __author__ = 'mkritzl'
 
 import sys
 from PySide.QtGui import *
-
-class MyDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-        self.form = DatabaseDialog.Ui_Form()
-        self.form.setupUi(self)
-
-        self.form.okOrCancel.button(QtGui.QDialogButtonBox.Ok).clicked.connect(self.ok)
-        self.form.okOrCancel.button(QtGui.QDialogButtonBox.Cancel).clicked.connect(self.cancel)
-
-    def setElections(self, elections):
-        self.form.elections.clear()
-        self.form.elections.addItems(elections)
-
-    def getElection(self):
-        return self.form.elections.currentText()
-
-    def cancel(self):
-        self.form.elections.setEditText(None)
-        self.reject()
-
-    def ok(self):
-        self.accept()
-
-
 
 
 class MyController(QMainWindow):
@@ -51,7 +27,7 @@ class MyController(QMainWindow):
         self.form = WienwahlView.Ui_MainWindow()
         self.form.setupUi(self)
 
-        self.dialogWindow = MyDialog()
+        self.dialogWindow = DatabaseDialogController()
 
         self.model = WienwahlModel()
         self.csvHandler = CSVHandler()
@@ -79,6 +55,9 @@ class MyController(QMainWindow):
         self.form.addRow.triggered.connect(self.addRow)
         self.form.duplicateRow.triggered.connect(self.duplicateRow)
         self.form.removeRow.triggered.connect(self.removeRows)
+
+        self.form.prediction.triggered.connect(self.prediction)
+        self.form.createPrediction.triggered.connect(self.createPrediction)
 
     def openFileDialog(self):
         """
@@ -173,7 +152,7 @@ class MyController(QMainWindow):
         access = self.databaseDialog()
         if access:
             accessor = Accessor(access, ConnectionType.database)
-            self.generateNewTab(self.databaseHandler.getConentAsArray(accessor.getAccessString()), accessor)
+            self.generateNewTab(self.databaseHandler.getVotesAsArray(accessor.getAccessString()), accessor)
 
         self.closeDatabaseDialog()
 
@@ -334,6 +313,23 @@ class MyController(QMainWindow):
 
     def helpWindow(self):
         pass
+
+    def prediction(self,date=None):
+        if not date:
+            if self.model.getCurrentTable() and self.model.getCurrentTable().getAccessor() and self.model.getCurrentTable().getAccessor().getConnectionType()==ConnectionType.database:
+                date = self.model.getCurrentTable().getAccessor().getAccessString()
+            else:
+                date = self.databaseDialog()
+        if date:
+            accessor = Accessor(date, ConnectionType.prediction)
+            self.generateNewTab(self.databaseHandler.getPredictionsAsArray(accessor.getAccessString()), accessor)
+
+    def createPrediction(self):
+        if self.model.getCurrentTable() and self.model.getCurrentTable().getAccessor():
+            date = self.model.getCurrentTable().getAccessor().getAccessString()
+        else:
+            date = datetime.now().strftime("%Y-%m-%d")
+        self.prediction(self.databaseHandler.createPrediction(date))
 
     def tabChanged(self):
         self.model.setCurrentIndex(self.form.tabs.currentIndex())

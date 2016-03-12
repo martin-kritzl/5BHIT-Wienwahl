@@ -71,6 +71,8 @@
     <addaction name="separator"/>
     <addaction name="undo"/>
     <addaction name="redo"/>
+    <addaction name="separator"/>
+    <addaction name="createPrediction"/>
    </widget>
    <widget class="QMenu" name="menuWindows">
     <property name="acceptDrops">
@@ -83,6 +85,7 @@
      <string>Windows</string>
     </property>
     <addaction name="closeWindow"/>
+    <addaction name="prediction"/>
    </widget>
    <widget class="QMenu" name="helpWindow">
     <property name="acceptDrops">
@@ -240,6 +243,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="prediction">
+   <property name="text">
+    <string>Prediction View</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="createPrediction">
+   <property name="text">
+    <string>Create Prediction</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+P</string>
    </property>
   </action>
  </widget>

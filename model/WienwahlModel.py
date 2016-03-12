@@ -189,5 +189,6 @@ class Accessor(object):
 class ConnectionType(Enum):
     database = 1
     csv = 2
+    prediction = 3
 
 

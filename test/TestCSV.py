@@ -28,5 +28,5 @@ class TestCSV(unittest.TestCase):
         self.assertEqual("Neue Zeile;2", self.csvHandler.getLineAsString("../resource/test.csv", 1548))
 
     def testSetContent(self):
-        self.csvHandler.setContent("../resource/test.csv", "Das ist alles")
+        self.csvHandler.setVotes("../resource/test.csv", "Das ist alles")
         self.assertEquals("Das ist alles\r\n", self.csvHandler.getContentAsString("test.csv"))

@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from itertools import chain
 from unittest.mock import Base
-from sqlalchemy import create_engine, select, delete, insert
+from sqlalchemy import create_engine, select, delete, insert, func
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 
@@ -23,7 +23,7 @@ class DatabaseHandler(object):
     def getPartein(self, wahltermin):
         partein = []
         wahlstimmen = self.base.classes.wahlstimmen
-        for row in self.conn.execute(select([wahlstimmen]).where(wahlstimmen.wahltermin == wahltermin)):
+        for row in self.conn.execute(select([wahlstimmen]).where(wahlstimmen.wahltermin == wahltermin).order_by(wahlstimmen.parteiname.asc())):
             partein.append(row.parteiname)
 
         return partein
@@ -45,7 +45,7 @@ class DatabaseHandler(object):
         return stimmen
 
 
-    def getConentAsArray(self, accessor):
+    def getVotesAsArray(self, accessor):
         if not accessor:
             return None
         content = []
@@ -83,10 +83,13 @@ class DatabaseHandler(object):
         bezirk = self.base.classes.bezirk
         partei = self.base.classes.partei
         parteistimmen = self.base.classes.parteistimmen
+
         self.engine.execute("DELETE FROM wahl WHERE wahltermin='" + accessor + "'")
 
         s = Session(self.engine)
         try:
+            # s.query(wahl).whereclause(wahl.wahltermin==accessor).delete()
+
             wahl_new = wahl(wahltermin=accessor, mandate=None)
             s.add(wahl_new)
             s.commit()
@@ -112,11 +115,44 @@ class DatabaseHandler(object):
         finally:
             s.close()
 
-        #
-        #
-        # spregel = [item[4] for item in content]
-        # for row in spregel:
-        #     self.conn.execute(insert).values([])
+    def createPrediction(self, wahltermin):
+        time = datetime.now().strftime("%H:%M:%S")
+
+        connection = self.engine.raw_connection()
+        cursor = connection.cursor()
+        cursor.callproc("erzeugeHochrechnung", [wahltermin,time])
+        cursor.close()
+        connection.commit()
+
+        return wahltermin
+
+    def getPredictionsAsArray(self, wahltermin):
+        time = datetime.now().strftime("%H:%M:%S")
+
+
+        header = self.getPartein(wahltermin)
+        header.insert(0, "Zeitpunkt")
+
+        ergebnis = []
+        ergebnis.append(header)
+        hochrechnungsergebnis = self.base.classes.hochrechnungsergebnis
+        hochrechnung = self.base.classes.hochrechnung
+
+
+        for predictions in self.conn.execute(select([hochrechnung]).where(hochrechnung.wahltermin==wahltermin)):
+            eineHochrechnung = []
+            eineHochrechnung.append(predictions.zeitpunkt.strftime("%H:%M:%S"))
+            for row in self.conn.execute(select([hochrechnungsergebnis]).where(hochrechnungsergebnis.wahltermin==predictions.wahltermin).where(hochrechnungsergebnis.zeitpunkt==predictions.zeitpunkt).order_by(hochrechnungsergebnis.parteiname.asc())):
+                # partein.append(row.parteiname)
+                eineHochrechnung.append(str(round(float(row.prozent), 1))+"%")
+            ergebnis.append(eineHochrechnung)
+
+
+        return ergebnis
+
+
+
+
 
 
 

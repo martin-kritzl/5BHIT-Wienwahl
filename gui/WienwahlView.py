@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/Overview.ui'
 #
-# Created: Thu Mar 10 13:11:58 2016
+# Created: Fri Mar 11 21:17:25 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -71,6 +71,10 @@ class Ui_MainWindow(object):
         self.duplicateRow.setObjectName("duplicateRow")
         self.cut = QtGui.QAction(MainWindow)
         self.cut.setObjectName("cut")
+        self.prediction = QtGui.QAction(MainWindow)
+        self.prediction.setObjectName("prediction")
+        self.createPrediction = QtGui.QAction(MainWindow)
+        self.createPrediction.setObjectName("createPrediction")
         self.menuFile.addAction(self.openFile)
         self.menuFile.addAction(self.saveFile)
         self.menuFile.addAction(self.saveAsFile)
@@ -88,7 +92,10 @@ class Ui_MainWindow(object):
         self.menuEdit.addSeparator()
         self.menuEdit.addAction(self.undo)
         self.menuEdit.addAction(self.redo)
+        self.menuEdit.addSeparator()
+        self.menuEdit.addAction(self.createPrediction)
         self.menuWindows.addAction(self.closeWindow)
+        self.menuWindows.addAction(self.prediction)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuWindows.menuAction())
@@ -145,4 +152,8 @@ class Ui_MainWindow(object):
         self.duplicateRow.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+D", None, QtGui.QApplication.UnicodeUTF8))
         self.cut.setText(QtGui.QApplication.translate("MainWindow", "Cut", None, QtGui.QApplication.UnicodeUTF8))
         self.cut.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+X", None, QtGui.QApplication.UnicodeUTF8))
+        self.prediction.setText(QtGui.QApplication.translate("MainWindow", "Prediction View", None, QtGui.QApplication.UnicodeUTF8))
+        self.prediction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+P", None, QtGui.QApplication.UnicodeUTF8))
+        self.createPrediction.setText(QtGui.QApplication.translate("MainWindow", "Create Prediction", None, QtGui.QApplication.UnicodeUTF8))
+        self.createPrediction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+P", None, QtGui.QApplication.UnicodeUTF8))
 
