@@ -29,8 +29,10 @@ class MyController(QMainWindow):
         self.dialogWindow = DatabaseDialogController()
 
         self.model = WienwahlModel()
-        self.csvHandler = CSVHandler()
-        self.databaseHandler = DatabaseHandler('mysql+pymysql://wienwahl:wienwahl@localhost/wienwahl?charset=utf8')
+
+        self.handler = {}
+        self.handler["csvHandler"] = CSVHandler()
+        self.handler["databaseHandler"] = DatabaseHandler('mysql+pymysql://wienwahl:wienwahl@localhost/wienwahl?charset=utf8')
 
         self.databaseStep = None
         self.undoStack = QUndoStack()
@@ -135,10 +137,10 @@ class MyController(QMainWindow):
         path = self.openFileDialog()
         if path is not "":
             accessor = Accessor(path, ConnectionType.csv)
-            self.generateNewTab(self.csvHandler.getContentAsArray(accessor.getAccessString()), accessor)
+            self.generateNewTab(self.handler["csvHandler"].getContentAsArray(accessor.getAccessString()), accessor)
 
     def databaseDialog(self):
-        self.dialogWindow.setElections(self.databaseHandler.getElections())
+        self.dialogWindow.setElections(self.handler["databaseHandler"].getElections())
         self.dialogWindow.show()
         if self.dialogWindow.exec_():
             self.dialogWindow.hide()
@@ -151,7 +153,7 @@ class MyController(QMainWindow):
         access = self.databaseDialog()
         if access:
             accessor = Accessor(access, ConnectionType.database)
-            self.generateNewTab(self.databaseHandler.getVotesAsArray(accessor.getAccessString()), accessor)
+            self.generateNewTab(self.handler["databaseHandler"].getVotesAsArray(accessor.getAccessString()), accessor)
 
         self.closeDatabaseDialog()
 
@@ -159,11 +161,10 @@ class MyController(QMainWindow):
         self.saveAsResource(type)
 
     def saveResourceThread(self, accessor=None, data=None):
-        thread = Thread(target=self.saveResource, args=(accessor, data,))
-        thread.start()
+        self.saveResource(accessor, data)
 
-    def setSavingStatus(self):
-        if self.model.allSaved():
+    def setSavingStatus(self, saved):
+        if saved==True:
             self.form.statusbar.showMessage('saved')
             print("Set saving status saved")
         else:
@@ -172,27 +173,9 @@ class MyController(QMainWindow):
 
 
     def saveResource(self, accessor=None, data=None):
-        if not accessor:
-            accessor = self.model.getCurrentTable().getAccessor()
-        if not data:
-            data = self.model.getCurrentTable().getData()
-        self.model.getCurrentTable().setSaved(False)
-        self.setSavingStatus()
-        handler = None
-        if self.model.getTableCount()>0:
-
-            if accessor.getConnectionType()==ConnectionType.csv:
-                handler = self.csvHandler
-            elif accessor.getConnectionType()==ConnectionType.database:
-                handler = self.databaseHandler
-
-            handler.setContent(accessor.getAccessString(), data)
-            self.model.getCurrentTable().setEdited(False)
-
-
-        self.model.getCurrentTable().setSaved(True)
-        self.setSavingStatus()
-
+        saver = Saver(self.handler, self.model.getCurrentTable(), accessor, data)
+        saver.updateProgress.connect(self.setSavingStatus)
+        saver.start()
 
     def saveAsDatabase(self):
         self.saveAsResourceThread(ConnectionType.database)
@@ -326,14 +309,14 @@ class MyController(QMainWindow):
                 date = self.databaseDialog()
         if date:
             accessor = Accessor(date, ConnectionType.prediction)
-            self.generateNewTab(self.databaseHandler.getPredictionsAsArray(accessor.getAccessString()), accessor)
+            self.generateNewTab(self.handler["databaseHandler"].getPredictionsAsArray(accessor.getAccessString()), accessor)
 
     def createPrediction(self):
         if self.model.getCurrentTable() and self.model.getCurrentTable().getAccessor() and self.model.getCurrentTable().getAccessor().getConnectionType()==ConnectionType.database:
             date = self.model.getCurrentTable().getAccessor().getAccessString()
         else:
             date = datetime.now().strftime("%Y-%m-%d")
-        self.prediction(self.databaseHandler.createPrediction(date))
+        self.prediction(self.handler["databaseHandler"].createPrediction(date))
 
     def tabChanged(self):
         self.model.setCurrentIndex(self.form.tabs.currentIndex())
@@ -358,33 +341,36 @@ class MyController(QMainWindow):
         self.form.tabs.removeTab(index)
         self.model.deleteTable(index)
 
-# class Saver(QtCore.QThread):
-#     updateProgress = QtCore.Signal(int)
-#
-#     def __init__(self, hanlder, currentTable, accessor, data):
-#         QtCore.QThread.__init__(self)
-#
-#     def run(self):
-#         if not accessor:
-#             accessor = self.model.getCurrentTable().getAccessor()
-#         if not data:
-#             data = self.model.getCurrentTable().getData()
-#         self.model.getCurrentTable().setSaved(False)
-#         self.setSavingStatus()
-#         handler = None
-#         if self.model.getTableCount()>0:
-#
-#             if accessor.getConnectionType()==ConnectionType.csv:
-#                 handler = self.csvHandler
-#             elif accessor.getConnectionType()==ConnectionType.database:
-#                 handler = self.databaseHandler
-#
-#             handler.setContent(accessor.getAccessString(), data)
-#             self.model.getCurrentTable().setEdited(False)
-#
-#
-#         self.model.getCurrentTable().setSaved(True)
-#         self.setSavingStatus()
+class Saver(QtCore.QThread):
+    updateProgress = QtCore.Signal(int)
+
+    def __init__(self, handler, currentTable, accessor, data):
+        QtCore.QThread.__init__(self)
+        self.handler = handler
+        self.currentTable = currentTable
+        self.accessor = accessor
+        self.data = data
+
+    def run(self):
+        if not self.accessor:
+            self.accessor = self.model.getCurrentTable().getAccessor()
+        if not self.data:
+            self.data = self.currentTable.getData()
+        self.currentTable.setSaved(False)
+        self.updateProgress.emit(False)
+        handler = None
+        if self.accessor and self.data:
+            if self.accessor.getConnectionType()==ConnectionType.csv:
+                handler = self.handler["csvHandler"]
+            elif self.accessor.getConnectionType()==ConnectionType.database:
+                handler = self.handler["databaseHandler"]
+
+            handler.setContent(self.accessor.getAccessString(), self.data)
+            self.currentTable.setEdited(False)
+
+
+        self.currentTable.setSaved(True)
+        self.updateProgress.emit(True)
 
 
 if __name__ == "__main__":
