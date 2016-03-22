@@ -1,14 +1,13 @@
 from threading import Thread
 import os
 
-from PySide import QtGui
+from PySide import QtGui, QtCore
 from datetime import datetime
 from command.command import EditCommand, InsertRowsCommand, RemoveRowsCommand, DuplicateRowCommand
 from command.delegate import ItemDelegate
 from controller.DatabasedialogController import DatabaseDialogController
 
 from csvhandler.CSVHandler import CSVHandler
-from command.CopyPaste import PasteAction
 from database.DatabaseHandler import DatabaseHandler
 from model.WienwahlModel import WienwahlModel, TableModel, Accessor, ConnectionType
 from gui import WienwahlView
@@ -159,22 +158,26 @@ class MyController(QMainWindow):
     def saveAsResourceThread(self, type):
         self.saveAsResource(type)
 
-    def saveResourceThread(self):
-        self.saveResource()
+    def saveResourceThread(self, accessor=None, data=None):
+        thread = Thread(target=self.saveResource, args=(accessor, data,))
+        thread.start()
 
     def setSavingStatus(self):
-        print("Set saving status")
         if self.model.allSaved():
             self.form.statusbar.showMessage('saved')
+            print("Set saving status saved")
         else:
             self.form.statusbar.showMessage('saving...')
+            print("Set saving saving")
 
 
-    def saveResource(self, accessor=None):
+    def saveResource(self, accessor=None, data=None):
         if not accessor:
             accessor = self.model.getCurrentTable().getAccessor()
+        if not data:
+            data = self.model.getCurrentTable().getData()
         self.model.getCurrentTable().setSaved(False)
-        # self.setSavingStatus()
+        self.setSavingStatus()
         handler = None
         if self.model.getTableCount()>0:
 
@@ -183,12 +186,12 @@ class MyController(QMainWindow):
             elif accessor.getConnectionType()==ConnectionType.database:
                 handler = self.databaseHandler
 
-            handler.setContent(accessor.getAccessString(), self.model.getCurrentTable().getData())
+            handler.setContent(accessor.getAccessString(), data)
             self.model.getCurrentTable().setEdited(False)
 
 
         self.model.getCurrentTable().setSaved(True)
-        # self.setSavingStatus()
+        self.setSavingStatus()
 
 
     def saveAsDatabase(self):
@@ -205,8 +208,9 @@ class MyController(QMainWindow):
             elif type==ConnectionType.database:
                 accessor = Accessor(self.databaseDialog(), ConnectionType.database)
 
-            thread = Thread(target=self.saveResource, args=(accessor, ))
-            thread.start()
+            self.model.getCurrentTable().setAccessor(accessor)
+
+            self.saveResourceThread(accessor)
 
             self.form.tabs.setTabText(self.model.getCurrentIndex(), accessor.getName())
             self.form.tabs.setTabToolTip(self.model.getCurrentIndex(), accessor.getName())
@@ -325,7 +329,7 @@ class MyController(QMainWindow):
             self.generateNewTab(self.databaseHandler.getPredictionsAsArray(accessor.getAccessString()), accessor)
 
     def createPrediction(self):
-        if self.model.getCurrentTable() and self.model.getCurrentTable().getAccessor():
+        if self.model.getCurrentTable() and self.model.getCurrentTable().getAccessor() and self.model.getCurrentTable().getAccessor().getConnectionType()==ConnectionType.database:
             date = self.model.getCurrentTable().getAccessor().getAccessString()
         else:
             date = datetime.now().strftime("%Y-%m-%d")
@@ -342,7 +346,7 @@ class MyController(QMainWindow):
             reply = QtGui.QMessageBox.question(self, 'Message', quit_msg, QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
 
             if reply == QtGui.QMessageBox.Save:
-                self.saveRessource()
+                self.saveRessourceThread()
                 self.removeTab(index)
             elif reply == QtGui.QMessageBox.Yes:
                 self.removeTab(index)
@@ -354,7 +358,33 @@ class MyController(QMainWindow):
         self.form.tabs.removeTab(index)
         self.model.deleteTable(index)
 
-
+# class Saver(QtCore.QThread):
+#     updateProgress = QtCore.Signal(int)
+#
+#     def __init__(self, hanlder, currentTable, accessor, data):
+#         QtCore.QThread.__init__(self)
+#
+#     def run(self):
+#         if not accessor:
+#             accessor = self.model.getCurrentTable().getAccessor()
+#         if not data:
+#             data = self.model.getCurrentTable().getData()
+#         self.model.getCurrentTable().setSaved(False)
+#         self.setSavingStatus()
+#         handler = None
+#         if self.model.getTableCount()>0:
+#
+#             if accessor.getConnectionType()==ConnectionType.csv:
+#                 handler = self.csvHandler
+#             elif accessor.getConnectionType()==ConnectionType.database:
+#                 handler = self.databaseHandler
+#
+#             handler.setContent(accessor.getAccessString(), data)
+#             self.model.getCurrentTable().setEdited(False)
+#
+#
+#         self.model.getCurrentTable().setSaved(True)
+#         self.setSavingStatus()
 
 
 if __name__ == "__main__":

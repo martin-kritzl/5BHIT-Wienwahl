@@ -58,6 +58,9 @@ class TableModel(QAbstractTableModel):
     https://blog.rburchell.com/2010/02/pyside-tutorial-model-view-programming_22.html
     """
     content = []
+    updatedRows = {}
+    addedRows = {}
+    removedRows = {}
     header = []
     accessor = None
     edited = False
@@ -71,6 +74,33 @@ class TableModel(QAbstractTableModel):
             self.header = data[0]
 
         self.accessor = accessor
+
+    def addedRowsRemove(self, primary):
+        del self.addedRows[primary]
+
+    def addedRowsAdd(self, primary, row):
+        self.addedRows[primary] = row
+
+    def updatedRowsRemove(self, primary):
+        del self.updatedRows[primary]
+
+    def updatedRowsAdd(self, primary, row):
+        self.updatedRows[primary] = row
+
+    def removedRowsRemove(self, primary):
+        del self.removedRows[primary]
+
+    def removedRowsAdd(self, primary):
+        self.removedRows[primary]=""
+
+    def getRemovedRows(self):
+        return self.removedRows
+
+    def getAddedRows(self):
+        return self.removedRows
+
+    def getUpdatedRows(self):
+        return self.removedRows
 
     def setView(self, view):
         self.view = view
@@ -190,5 +220,12 @@ class ConnectionType(Enum):
     database = 1
     csv = 2
     prediction = 3
+
+class RowParser(object):
+    def __init__(self, row):
+        self.row = row
+
+    def getPrimary(self):
+        str(self.row[3])+","+str(self.row[4])
 
 

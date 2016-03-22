@@ -23,7 +23,7 @@ class DatabaseHandler(object):
     def getPartein(self, wahltermin):
         partein = []
         wahlstimmen = self.base.classes.wahlstimmen
-        for row in self.conn.execute(select([wahlstimmen]).where(wahlstimmen.wahltermin == wahltermin).order_by(wahlstimmen.parteiname.asc())):
+        for row in self.engine.execute(select([wahlstimmen]).where(wahlstimmen.wahltermin == wahltermin).order_by(wahlstimmen.parteiname.asc())):
             partein.append(row.parteiname)
 
         return partein
@@ -40,7 +40,7 @@ class DatabaseHandler(object):
     def getStimmen(self, wahltermin, bezirk, sprengel):
         stimmen = []
         parteistimmen = self.base.classes.parteistimmen
-        for row in self.conn.execute(select([parteistimmen]).where(parteistimmen.wahltermin == wahltermin).where(parteistimmen.bezirknr == bezirk).where(parteistimmen.sprengelnr == sprengel)):
+        for row in self.engine.execute(select([parteistimmen]).where(parteistimmen.wahltermin == wahltermin).where(parteistimmen.bezirknr == bezirk).where(parteistimmen.sprengelnr == sprengel)):
             stimmen.append([row.parteiname, row.menge])
         return stimmen
 
@@ -70,39 +70,56 @@ class DatabaseHandler(object):
     def getElections(self):
         elections = []
         wahl = self.base.classes.wahl
-        for row in self.conn.execute(select([wahl])):
+        for row in self.engine.execute(select([wahl])):
             elections.append(row.wahltermin.strftime("%Y-%m-%d"))
 
         return elections
 
+    def deleteWahl(self, session, wahltermin):
+        Sprengel = self.base.classes.sprengel
+        Parteistimmen = self.base.classes.parteistimmen
+        Wahlstimmen = self.base.classes.wahlstimmen
+
+        session.query(Sprengel).filter(Sprengel.wahltermin == wahltermin).delete()
+        session.query(Parteistimmen).filter(Parteistimmen.wahltermin == wahltermin).delete()
+        session.query(Wahlstimmen).filter(Wahlstimmen.wahltermin == wahltermin).delete()
+
+        # session.execute("DELETE FROM Parteistimmen WHERE wahltermin='" + wahltermin + "';")
+        # session.execute("DELETE FROM Sprengel WHERE wahltermin='" + wahltermin + "';")
+        # session.execute("DELETE FROM Wahlstimmen WHERE wahltermin='" + wahltermin + "';")
 
     def setContent(self, accessor,content):
-        wahl = self.base.classes.wahl
-        sprengel = self.base.classes.sprengel
-        parteistimmen = self.base.classes.parteistimmen
-        bezirk = self.base.classes.bezirk
-        partei = self.base.classes.partei
-        parteistimmen = self.base.classes.parteistimmen
-
-        self.engine.execute("DELETE FROM wahl WHERE wahltermin='" + accessor + "'")
+        print("Set content")
+        Wahl = self.base.classes.wahl
+        Sprengel = self.base.classes.sprengel
+        Parteistimmen = self.base.classes.parteistimmen
 
         s = Session(self.engine)
         try:
-            # s.query(wahl).whereclause(wahl.wahltermin==accessor).delete()
 
-            wahl_new = wahl(wahltermin=accessor, mandate=None)
-            s.add(wahl_new)
-            s.commit()
+            self.deleteWahl(s, accessor)
+
+            print("Deleted content")
+
+            exists = s.execute(select([Wahl]).where(Wahl.wahltermin==accessor))
+
+            wahl_new = Wahl(wahltermin=accessor, mandate=None)
+
+            if exists.rowcount==0:
+                s.add(wahl_new)
+            #
+            #
+            # s.commit()
 
             countpartei=8
 
             for row in content[1:]:
-                sprengel_new = sprengel(wahltermin=wahl_new.wahltermin, bezirknr=int(row[3]), sprengelnr=int(row[4]), wahlberechtigte=int(row[5]), abgeg_stimmen=int(row[6]), ung_stimmen=int(row[7]))
+                sprengel_new = Sprengel(wahltermin=wahl_new.wahltermin, bezirknr=int(row[3]), sprengelnr=int(row[4]), wahlberechtigte=int(row[5]), abgeg_stimmen=int(row[6]), ung_stimmen=int(row[7]))
                 s.add(sprengel_new)
                 countpartei=8
 
                 for act_partei in content[0][8:]:
-                    parteistimmen_new = parteistimmen(wahltermin=wahl_new.wahltermin, bezirknr=int(row[3]), sprengelnr=int(row[4]), parteiname=act_partei, menge=int(row[countpartei]))
+                    parteistimmen_new = Parteistimmen(wahltermin=wahl_new.wahltermin, bezirknr=int(row[3]), sprengelnr=int(row[4]), parteiname=act_partei, menge=int(row[countpartei]))
                     s.add(parteistimmen_new)
                     countpartei+=1
 
@@ -139,12 +156,12 @@ class DatabaseHandler(object):
         hochrechnung = self.base.classes.hochrechnung
 
 
-        for predictions in self.conn.execute(select([hochrechnung]).where(hochrechnung.wahltermin==wahltermin)):
+        for predictions in self.engine.execute(select([hochrechnung]).where(hochrechnung.wahltermin==wahltermin)):
             eineHochrechnung = []
             eineHochrechnung.append(predictions.zeitpunkt.strftime("%H:%M:%S"))
-            for row in self.conn.execute(select([hochrechnungsergebnis]).where(hochrechnungsergebnis.wahltermin==predictions.wahltermin).where(hochrechnungsergebnis.zeitpunkt==predictions.zeitpunkt).order_by(hochrechnungsergebnis.parteiname.asc())):
+            for row in self.engine.execute(select([hochrechnungsergebnis]).where(hochrechnungsergebnis.wahltermin==predictions.wahltermin).where(hochrechnungsergebnis.zeitpunkt==predictions.zeitpunkt).order_by(hochrechnungsergebnis.parteiname.asc())):
                 # partein.append(row.parteiname)
-                eineHochrechnung.append(str(round(float(row.prozent), 1))+"%")
+                eineHochrechnung.append(str(round(float(row.prozent), 3))+"%")
             ergebnis.append(eineHochrechnung)
 
 
