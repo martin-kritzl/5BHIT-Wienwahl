@@ -3,6 +3,7 @@ import os
 
 from PySide import QtGui, QtCore
 from datetime import datetime
+import time
 from command.command import EditCommand, InsertRowsCommand, RemoveRowsCommand, DuplicateRowCommand
 from command.delegate import ItemDelegate
 from controller.DatabasedialogController import DatabaseDialogController
@@ -36,6 +37,8 @@ class MyController(QMainWindow):
 
         self.databaseStep = None
         self.undoStack = QUndoStack()
+
+        self.threads = []
 
 
         self.form.newFile.triggered.connect(self.newFile)
@@ -155,27 +158,28 @@ class MyController(QMainWindow):
             accessor = Accessor(access, ConnectionType.database)
             self.generateNewTab(self.handler["databaseHandler"].getVotesAsArray(accessor.getAccessString()), accessor)
 
-        self.closeDatabaseDialog()
-
     def saveAsResourceThread(self, type):
         self.saveAsResource(type)
 
     def saveResourceThread(self, accessor=None, data=None):
         self.saveResource(accessor, data)
 
-    def setSavingStatus(self, saved):
+    def setSavingStatus(self, saved, currentTable):
         if saved==True:
             self.form.statusbar.showMessage('saved')
-            print("Set saving status saved")
+            currentTable.setEdited(False)
+            # print("Set saving status saved")
         else:
             self.form.statusbar.showMessage('saving...')
-            print("Set saving saving")
+            # print("Set saving saving")
 
 
     def saveResource(self, accessor=None, data=None):
-        saver = Saver(self.handler, self.model.getCurrentTable(), accessor, data)
-        saver.updateProgress.connect(self.setSavingStatus)
-        saver.start()
+        if data or self.model.getCurrentTable() and self.model.getCurrentTable().getAccessor():
+            saver = Saver(self.handler, self.model.getCurrentTable(), accessor, data)
+            saver.updateProgress.connect(self.setSavingStatus)
+            saver.start()
+            self.threads.append(saver)
 
     def saveAsDatabase(self):
         self.saveAsResourceThread(ConnectionType.database)
@@ -329,7 +333,7 @@ class MyController(QMainWindow):
             reply = QtGui.QMessageBox.question(self, 'Message', quit_msg, QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
 
             if reply == QtGui.QMessageBox.Save:
-                self.saveRessourceThread()
+                self.saveResourceThread()
                 self.removeTab(index)
             elif reply == QtGui.QMessageBox.Yes:
                 self.removeTab(index)
@@ -342,7 +346,7 @@ class MyController(QMainWindow):
         self.model.deleteTable(index)
 
 class Saver(QtCore.QThread):
-    updateProgress = QtCore.Signal(int)
+    updateProgress = QtCore.Signal(bool, TableModel)
 
     def __init__(self, handler, currentTable, accessor, data):
         QtCore.QThread.__init__(self)
@@ -353,11 +357,10 @@ class Saver(QtCore.QThread):
 
     def run(self):
         if not self.accessor:
-            self.accessor = self.model.getCurrentTable().getAccessor()
+            self.accessor = self.currentTable.getAccessor()
         if not self.data:
             self.data = self.currentTable.getData()
-        self.currentTable.setSaved(False)
-        self.updateProgress.emit(False)
+
         handler = None
         if self.accessor and self.data:
             if self.accessor.getConnectionType()==ConnectionType.csv:
@@ -365,13 +368,9 @@ class Saver(QtCore.QThread):
             elif self.accessor.getConnectionType()==ConnectionType.database:
                 handler = self.handler["databaseHandler"]
 
+            self.updateProgress.emit(False, self.currentTable)
             handler.setContent(self.accessor.getAccessString(), self.data)
-            self.currentTable.setEdited(False)
-
-
-        self.currentTable.setSaved(True)
-        self.updateProgress.emit(True)
-
+            self.updateProgress.emit(True, self.currentTable)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
