@@ -36,7 +36,6 @@ class MyController(QMainWindow):
         self.handler["databaseHandler"] = DatabaseHandler('mysql+pymysql://wienwahl:wienwahl@localhost/wienwahl?charset=utf8')
 
         self.databaseStep = None
-        self.undoStack = QUndoStack()
 
         self.threads = []
 
@@ -117,7 +116,7 @@ class MyController(QMainWindow):
         table_view = QTableView()
         table_view.setObjectName("table"+str(self.model.getTableCount()))
         table_view.setModel(table_model)
-        table_view.setItemDelegate(ItemDelegate(self.undoStack))
+        table_view.setItemDelegate(ItemDelegate(table_model.getUndoStack()))
 
         layout = QVBoxLayout(self)
         layout.addWidget(table_view)
@@ -231,21 +230,23 @@ class MyController(QMainWindow):
         table = self.model.getCurrentTable()
         if table:
             start, amount = self.get_selection()
-            self.undoStack.push(InsertRowsCommand(self.model.getCurrentTable(), start, 1))
+            self.table.getUndoStack().push(InsertRowsCommand(self.model.getCurrentTable(), start, 1))
             self.editedSomething()
 
     def duplicateRow(self):
-        if len(self.model.getCurrentTable().getContent()) == 0:
+        table = self.model.getCurrentTable()
+        if len(table.getContent()) == 0:
             return
         start, amount = self.get_selection()
-        self.undoStack.push(DuplicateRowCommand(self.model.getCurrentTable(), start))
+        table.getUndoStack().push(DuplicateRowCommand(table, start))
         self.editedSomething()
 
     def removeRows(self):
-        if len(self.model.getCurrentTable().getContent()) == 0:
+        table = self.model.getCurrentTable()
+        if len(table.getContent()) == 0:
             return
         start, amount = self.get_selection()
-        self.undoStack.push(RemoveRowsCommand(self.model.getCurrentTable(), start, amount))
+        table.getUndoStack().push(RemoveRowsCommand(table, start, amount))
         self.editedSomething()
 
     def cut(self):
@@ -260,7 +261,7 @@ class MyController(QMainWindow):
 
         cmd = EditCommand(self.model.getCurrentTable(), selection)
         cmd.newValue("")
-        self.undoStack.push(cmd)
+        self.model.getCurrentTable().getUndoStack().push(cmd)
         self.editedSomething()
 
     def copy(self):
@@ -284,7 +285,7 @@ class MyController(QMainWindow):
         index = selectedIndexes[0]
         cmd = EditCommand(self.model.getCurrentTable(), index)
         cmd.newValue(value)
-        self.undoStack.push(cmd)
+        self.model.getCurrentTable().getUndoStack().push(cmd)
         self.editedSomething()
 
     def editedSomething(self):
@@ -292,11 +293,11 @@ class MyController(QMainWindow):
         self.model.getCurrentTable().setEdited(True)
 
     def undo(self):
-        self.undoStack.undo()
+        self.model.getCurrentTable().getUndoStack().undo()
         self.model.getCurrentTable().getView().reset()
 
     def redo(self):
-        self.undoStack.redo()
+        self.model.getCurrentTable().getUndoStack().redo()
         self.model.getCurrentTable().getView().reset()
 
     def closeWindow(self):

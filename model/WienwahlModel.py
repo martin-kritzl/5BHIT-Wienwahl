@@ -1,6 +1,7 @@
 from enum import Enum
 import operator
 from PySide.QtCore import *
+from PySide.QtGui import QUndoStack
 
 __author__ = 'mkritzl'
 
@@ -66,6 +67,7 @@ class TableModel(QAbstractTableModel):
     edited = False
     saved = True
     viewName = None
+    undoStack = QUndoStack()
 
     def __init__(self, parent,  data, accessor, *args):
         QAbstractTableModel.__init__(self, parent, *args)
@@ -107,6 +109,9 @@ class TableModel(QAbstractTableModel):
 
     def getView(self):
         return self.view
+
+    def getUndoStack(self):
+        return self.undoStack
 
     def isSaved(self):
         return self.saved

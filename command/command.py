@@ -77,4 +77,4 @@ class RemoveRowsCommand(QUndoCommand):
         self.__model.removeRows(self.__index, self.__amount)
 
     def undo(self):
-        self.__model.setVotes(self.__oldList)
+        self.__model.setContent(self.__oldList)
