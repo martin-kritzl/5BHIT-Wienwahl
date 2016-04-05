@@ -116,7 +116,7 @@ class MyController(QMainWindow):
         table_view = QTableView()
         table_view.setObjectName("table"+str(self.model.getTableCount()))
         table_view.setModel(table_model)
-        table_view.setItemDelegate(ItemDelegate(table_model.getUndoStack()))
+        table_view.setItemDelegate(ItemDelegate(table_model.getUndoStack(), self.editedSomething))
 
         layout = QVBoxLayout(self)
         layout.addWidget(table_view)
@@ -230,7 +230,9 @@ class MyController(QMainWindow):
         table = self.model.getCurrentTable()
         if table:
             start, amount = self.get_selection()
-            self.table.getUndoStack().push(InsertRowsCommand(self.model.getCurrentTable(), start, 1))
+            table.getUndoStack().beginMacro("Added table")
+            table.getUndoStack().push(InsertRowsCommand(self.model.getCurrentTable(), start, 1))
+            table.getUndoStack().endMacro()
             self.editedSomething()
 
     def duplicateRow(self):
@@ -238,7 +240,9 @@ class MyController(QMainWindow):
         if len(table.getContent()) == 0:
             return
         start, amount = self.get_selection()
+        table.getUndoStack().beginMacro("Duplicated row")
         table.getUndoStack().push(DuplicateRowCommand(table, start))
+        table.getUndoStack().endMacro()
         self.editedSomething()
 
     def removeRows(self):
@@ -246,10 +250,13 @@ class MyController(QMainWindow):
         if len(table.getContent()) == 0:
             return
         start, amount = self.get_selection()
+        table.getUndoStack().beginMacro("Removed row(s)")
         table.getUndoStack().push(RemoveRowsCommand(table, start, amount))
+        table.getUndoStack().endMacro()
         self.editedSomething()
 
     def cut(self):
+        table = self.model.getCurrentTable()
         selectedIndexes = self.model.getCurrentTable().getView().selectionModel().selectedIndexes()
         if len(selectedIndexes) == 0:
             return
@@ -261,7 +268,10 @@ class MyController(QMainWindow):
 
         cmd = EditCommand(self.model.getCurrentTable(), selection)
         cmd.newValue("")
-        self.model.getCurrentTable().getUndoStack().push(cmd)
+        table.getUndoStack().beginMacro("Cutted Text")
+        table.getUndoStack().push(cmd)
+        table.getUndoStack().endMacro()
+
         self.editedSomething()
 
     def copy(self):
@@ -276,6 +286,7 @@ class MyController(QMainWindow):
 
 
     def paste(self):
+        table = self.model.getCurrentTable()
         selectedIndexes = self.model.getCurrentTable().getView().selectionModel().selectedIndexes()
         if len(selectedIndexes) == 0:
             return
@@ -285,20 +296,23 @@ class MyController(QMainWindow):
         index = selectedIndexes[0]
         cmd = EditCommand(self.model.getCurrentTable(), index)
         cmd.newValue(value)
-        self.model.getCurrentTable().getUndoStack().push(cmd)
+        table.getUndoStack().beginMacro("Pasted Text")
+        table.getUndoStack().push(cmd)
+        table.getUndoStack().endMacro()
         self.editedSomething()
 
     def editedSomething(self):
         self.model.getCurrentTable().getView().reset()
         self.model.getCurrentTable().setEdited(True)
+        self.setUndoRedoMenu()
 
     def undo(self):
         self.model.getCurrentTable().getUndoStack().undo()
-        self.model.getCurrentTable().getView().reset()
+        self.editedSomething()
 
     def redo(self):
         self.model.getCurrentTable().getUndoStack().redo()
-        self.model.getCurrentTable().getView().reset()
+        self.editedSomething()
 
     def closeWindow(self):
         pass
@@ -345,6 +359,20 @@ class MyController(QMainWindow):
             widget.deleteLater()
         self.form.tabs.removeTab(index)
         self.model.deleteTable(index)
+
+
+    def setUndoRedoMenu(self):
+        undo = "Undo"
+        redo = "Redo"
+        undoText = self.model.getCurrentTable().getUndoStack().undoText()
+        redoText = self.model.getCurrentTable().getUndoStack().redoText()
+        if undoText:
+            undo+= " (" + undoText + ")"
+        if redoText:
+            redo+= " (" + redoText + ")"
+
+        self.form.undo.setText(undo)
+        self.form.redo.setText(redo)
 
 class Saver(QtCore.QThread):
     updateProgress = QtCore.Signal(bool, TableModel)
