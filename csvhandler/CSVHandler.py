@@ -11,14 +11,14 @@ class CSVHandler(object):
             rows = []
             file = csv.reader(csvfile, delimiter=';')
             for row in file:
-                rows.append(row)
+                rows.append(row[0:len(row)-1])
             return rows
 
     def getContentAsString(self, file):
         output = ""
         rows = self.getContentAsArray(file)
         for row in rows:
-            output = output + ';'.join(row) + '\r\n'
+            output = output + ';'.join(row[0:len(row)-1]) + '\r\n'
 
         return output
 
