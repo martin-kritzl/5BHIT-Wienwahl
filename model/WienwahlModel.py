@@ -189,10 +189,9 @@ class TableModel(QAbstractTableModel):
             return self.header[col]
         return None
 
-    def removeRows(self, row, count, parent=QModelIndex):
-        self.beginRemoveRows(QModelIndex(), row, row+count-1)
-        for i in range(count):
-            del self.content[row:row+count]
+    def removeRows(self, position, rows=1, index=QModelIndex()):
+        self.beginRemoveRows(QModelIndex(), position, position + rows - 1)
+        self.content = self.content[:position] + self.content[position + rows:]
         self.endRemoveRows()
         return True
 

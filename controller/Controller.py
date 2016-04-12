@@ -204,56 +204,67 @@ class MyController(QMainWindow):
 
 
 
-    def get_zero_column_selected_indexes(self, table_view=None):
-        if not table_view:
-            return
-        selected_indexes = table_view.selectedIndexes()
-        if not selected_indexes:
-            return
-        return [index for index in selected_indexes if not index.column()]
+    # def get_zero_column_selected_indexes(self, table_view=None):
+    #     if not table_view:
+    #         return
+    #     selected_indexes = table_view.selectedIndexes()
+    #     if not selected_indexes:
+    #         return
+    #     return [index for index in selected_indexes if not index.column()]
+    #
+    # def get_selected_rows(self):
+    #     zero_column_selected_indexes = self.get_zero_column_selected_indexes(self.model.getCurrentTable().getView())
+    #     if not zero_column_selected_indexes:
+    #         return self.model.getCurrentTable().rowCount(self), 1
+    #     first_zero_column_selected_index = zero_column_selected_indexes[0]
+    #     zero_column_selected_indexes = self.get_zero_column_selected_indexes(self.model.getCurrentTable().getView())
+    #
+    #     if not first_zero_column_selected_index or not first_zero_column_selected_index.isValid():
+    #         return False
+    #     startingrow = first_zero_column_selected_index.row()
+    #
+    #     return startingrow, len(zero_column_selected_indexes)
 
-    def get_selection(self):
-        zero_column_selected_indexes = self.get_zero_column_selected_indexes(self.model.getCurrentTable().getView())
-        if not zero_column_selected_indexes:
-            return self.model.getCurrentTable().rowCount(self), 1
-        first_zero_column_selected_index = zero_column_selected_indexes[0]
-        zero_column_selected_indexes = self.get_zero_column_selected_indexes(self.model.getCurrentTable().getView())
-
-        if not first_zero_column_selected_index or not first_zero_column_selected_index.isValid():
-            return False
-        startingrow = first_zero_column_selected_index.row()
-
-        return startingrow, len(zero_column_selected_indexes)
+    def get_selected_rows(self):
+        indexes = self.model.getCurrentTable().getView().selectionModel().selectedIndexes()
+        if indexes:
+            print(str(indexes[0].row()) + "amount:" + str(len(indexes)))
+            return indexes[0].row(), len(indexes)
+        else:
+            return None, None
 
 
     def addRow(self):
         table = self.model.getCurrentTable()
         if table:
-            start, amount = self.get_selection()
-            table.getUndoStack().beginMacro("Added table")
-            table.getUndoStack().push(InsertRowsCommand(self.model.getCurrentTable(), start, 1))
-            table.getUndoStack().endMacro()
-            self.editedSomething()
+            start, amount = self.get_selected_rows()
+            if amount:
+                table.getUndoStack().beginMacro("Added table")
+                table.getUndoStack().push(InsertRowsCommand(self.model.getCurrentTable(), start, 1))
+                table.getUndoStack().endMacro()
+                self.editedSomething()
 
     def duplicateRow(self):
         table = self.model.getCurrentTable()
         if len(table.getContent()) == 0:
             return
-        start, amount = self.get_selection()
-        table.getUndoStack().beginMacro("Duplicated row")
-        table.getUndoStack().push(DuplicateRowCommand(table, start))
-        table.getUndoStack().endMacro()
-        self.editedSomething()
+        start, amount = self.get_selected_rows()
+        if amount:
+            table.getUndoStack().beginMacro("Duplicated row")
+            table.getUndoStack().push(DuplicateRowCommand(table, start))
+            table.getUndoStack().endMacro()
+            self.editedSomething()
 
     def removeRows(self):
         table = self.model.getCurrentTable()
         if len(table.getContent()) == 0:
             return
-        start, amount = self.get_selection()
-        table.getUndoStack().beginMacro("Removed row(s)")
-        table.getUndoStack().push(RemoveRowsCommand(table, start, amount))
-        table.getUndoStack().endMacro()
-        self.editedSomething()
+        start, amount = self.get_selected_rows()
+        if amount:
+            table.getUndoStack().beginMacro("Removed row(s)")
+            table.getUndoStack().push(RemoveRowsCommand(table, start, amount))
+            table.getUndoStack().endMacro()
+            self.editedSomething()
 
     def cut(self):
         table = self.model.getCurrentTable()
