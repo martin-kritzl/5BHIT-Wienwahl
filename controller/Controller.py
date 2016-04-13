@@ -157,11 +157,11 @@ class MyController(QMainWindow):
             accessor = Accessor(access, ConnectionType.database)
             self.generateNewTab(self.handler["databaseHandler"].getVotesAsArray(accessor.getAccessString()), accessor)
 
-    def saveAsResourceThread(self, type):
-        self.saveAsResource(type)
+    def saveAsResourceThread(self, type, append=False):
+        self.saveAsResource(type, append)
 
-    def saveResourceThread(self, accessor=None, data=None):
-        self.saveResource(accessor, data)
+    def saveResourceThread(self, accessor=None, data=None, append=False):
+        self.saveResource(accessor, data, append)
 
     def setSavingStatus(self, saved, currentTable):
         if saved==True:
@@ -172,21 +172,26 @@ class MyController(QMainWindow):
             self.form.statusbar.showMessage('saving...')
             # print("Set saving saving")
 
+    def askForAppending(self):
+        reply = QtGui.QMessageBox.question(self, 'Message', "Do want to append this content", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        return reply == QtGui.QMessageBox.Yes
 
-    def saveResource(self, accessor=None, data=None):
+
+    def saveResource(self, accessor=None, data=None, append=False):
         if data or self.model.getCurrentTable() and self.model.getCurrentTable().getAccessor():
-            saver = Saver(self.handler, self.model.getCurrentTable(), accessor, data)
+            saver = Saver(self.handler, self.model.getCurrentTable(), accessor, data, append)
             saver.updateProgress.connect(self.setSavingStatus)
             saver.start()
             self.threads.append(saver)
 
     def saveAsDatabase(self):
-        self.saveAsResourceThread(ConnectionType.database)
+        append = self.askForAppending()
+        self.saveAsResourceThread(ConnectionType.database, append)
 
     def saveAsFile(self):
         self.saveAsResourceThread(ConnectionType.csv)
 
-    def saveAsResource(self, type=ConnectionType.csv):
+    def saveAsResource(self, type=ConnectionType.csv, append=False):
         accessor = None
         if self.model.getTableCount()>0:
             if type==ConnectionType.csv:
@@ -196,7 +201,7 @@ class MyController(QMainWindow):
 
             self.model.getCurrentTable().setAccessor(accessor)
 
-            self.saveResourceThread(accessor)
+            self.saveResourceThread(accessor, None, append)
 
             self.form.tabs.setTabText(self.model.getCurrentIndex(), accessor.getName())
             self.form.tabs.setTabToolTip(self.model.getCurrentIndex(), accessor.getName())
@@ -388,12 +393,13 @@ class MyController(QMainWindow):
 class Saver(QtCore.QThread):
     updateProgress = QtCore.Signal(bool, TableModel)
 
-    def __init__(self, handler, currentTable, accessor, data):
+    def __init__(self, handler, currentTable, accessor, data, append):
         QtCore.QThread.__init__(self)
         self.handler = handler
         self.currentTable = currentTable
         self.accessor = accessor
         self.data = data
+        self.append = append
 
     def run(self):
         if not self.accessor:
@@ -409,7 +415,7 @@ class Saver(QtCore.QThread):
                 handler = self.handler["databaseHandler"]
 
             self.updateProgress.emit(False, self.currentTable)
-            handler.setContent(self.accessor.getAccessString(), self.data)
+            handler.setContent(self.accessor.getAccessString(), self.data, self.append)
             self.updateProgress.emit(True, self.currentTable)
 
 if __name__ == "__main__":

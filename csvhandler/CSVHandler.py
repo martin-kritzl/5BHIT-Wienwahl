@@ -54,7 +54,7 @@ class CSVHandler(object):
     #         for row in reader:
     #             writer.writerow(row[0:len(row)-1])
 
-    def setContent(self, file, content):
+    def setContent(self, file, content, *args):
         with open(file, "w", newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=';')
             csvfile.truncate()

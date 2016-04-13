@@ -88,7 +88,7 @@ class DatabaseHandler(object):
         # session.execute("DELETE FROM Sprengel WHERE wahltermin='" + wahltermin + "';")
         # session.execute("DELETE FROM Wahlstimmen WHERE wahltermin='" + wahltermin + "';")
 
-    def setContent(self, accessor,content):
+    def setContent(self, accessor,content,append):
         print("Set content")
         Wahl = self.base.classes.wahl
         Sprengel = self.base.classes.sprengel
@@ -96,10 +96,9 @@ class DatabaseHandler(object):
 
         s = Session(self.engine)
         try:
-
-            self.deleteWahl(s, accessor)
-
-            print("Deleted content")
+            if append==False:
+                self.deleteWahl(s, accessor)
+                print("Deleted content")
 
             exists = s.execute(select([Wahl]).where(Wahl.wahltermin==accessor))
 
