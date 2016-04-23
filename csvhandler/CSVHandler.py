@@ -11,7 +11,7 @@ class CSVHandler(object):
             rows = []
             file = csv.reader(csvfile, delimiter=';')
             for row in file:
-                rows.append(row[0:len(row)-1])
+                rows.append(row[0:len(row)])
             return rows
 
     # def getContentAsString(self, file):
@@ -61,7 +61,7 @@ class CSVHandler(object):
 
             if isinstance(content, list):
                 for row in content:
-                    row.append("")
+                    # row.append("")
                     writer.writerow(row)
             # elif type(content) is str:
             #     writer.writerow(content.split(";"))

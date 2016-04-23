@@ -80,14 +80,7 @@ class MyController(QMainWindow):
 
 
     def newFile(self):
-        tab = self.appendTab(None)
-
-        table_model = TableModel(tab, [], None)
-        self.appendTable(table_model, tab)
-
-        self.model.setCurrentTableAndAdd(table_model)
-        self.formatTable(self.appendTable(table_model, tab))
-        self.model.getCurrentTable().setEdited(False)
+        self.generateNewTab([["T","WV","WK","BZ","SPR","WBER","ABG","UNG","SPOE","FPOE","OEVP","GRUE","NEOS","WWW","ANDAS","GFW","SLP","WIFF","M","FREIE"]], None)
 
     def formatTable(self, table):
         # set font
@@ -205,30 +198,6 @@ class MyController(QMainWindow):
 
             self.form.tabs.setTabText(self.model.getCurrentIndex(), accessor.getName())
             self.form.tabs.setTabToolTip(self.model.getCurrentIndex(), accessor.getName())
-
-
-
-
-    # def get_zero_column_selected_indexes(self, table_view=None):
-    #     if not table_view:
-    #         return
-    #     selected_indexes = table_view.selectedIndexes()
-    #     if not selected_indexes:
-    #         return
-    #     return [index for index in selected_indexes if not index.column()]
-    #
-    # def get_selected_rows(self):
-    #     zero_column_selected_indexes = self.get_zero_column_selected_indexes(self.model.getCurrentTable().getView())
-    #     if not zero_column_selected_indexes:
-    #         return self.model.getCurrentTable().rowCount(self), 1
-    #     first_zero_column_selected_index = zero_column_selected_indexes[0]
-    #     zero_column_selected_indexes = self.get_zero_column_selected_indexes(self.model.getCurrentTable().getView())
-    #
-    #     if not first_zero_column_selected_index or not first_zero_column_selected_index.isValid():
-    #         return False
-    #     startingrow = first_zero_column_selected_index.row()
-    #
-    #     return startingrow, len(zero_column_selected_indexes)
 
     def get_selected_rows(self):
         indexes = self.model.getCurrentTable().getView().selectionModel().selectedIndexes()
