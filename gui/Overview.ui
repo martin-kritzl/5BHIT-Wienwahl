@@ -16,17 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QTabWidget" name="tabs">
-      <property name="contextMenuPolicy">
-       <enum>Qt::DefaultContextMenu</enum>
-      </property>
-      <property name="tabsClosable">
-       <bool>true</bool>
-      </property>
-      <property name="movable">
-       <bool>true</bool>
-      </property>
-     </widget>
+     <widget class="QTableView" name="tableView"/>
     </item>
    </layout>
   </widget>
@@ -50,9 +40,6 @@
     <addaction name="saveFile"/>
     <addaction name="saveAsFile"/>
     <addaction name="newFile"/>
-    <addaction name="separator"/>
-    <addaction name="openDatabase"/>
-    <addaction name="saveAsDatabase"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="statusTip">
@@ -71,8 +58,6 @@
     <addaction name="separator"/>
     <addaction name="undo"/>
     <addaction name="redo"/>
-    <addaction name="separator"/>
-    <addaction name="createPrediction"/>
    </widget>
    <widget class="QMenu" name="menuWindows">
     <property name="acceptDrops">
@@ -85,7 +70,6 @@
      <string>Windows</string>
     </property>
     <addaction name="closeWindow"/>
-    <addaction name="prediction"/>
    </widget>
    <widget class="QMenu" name="helpWindow">
     <property name="acceptDrops">

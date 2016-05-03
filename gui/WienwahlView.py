@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui/Overview.ui'
 #
-# Created: Wed Apr 20 12:32:58 2016
+# Created: Tue May 03 11:48:26 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,12 +17,9 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
-        self.tabs = QtGui.QTabWidget(self.centralwidget)
-        self.tabs.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
-        self.tabs.setTabsClosable(True)
-        self.tabs.setMovable(True)
-        self.tabs.setObjectName("tabs")
-        self.gridLayout.addWidget(self.tabs, 0, 0, 1, 1)
+        self.tableView = QtGui.QTableView(self.centralwidget)
+        self.tableView.setObjectName("tableView")
+        self.gridLayout.addWidget(self.tableView, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 919, 26))
@@ -79,9 +76,6 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.saveFile)
         self.menuFile.addAction(self.saveAsFile)
         self.menuFile.addAction(self.newFile)
-        self.menuFile.addSeparator()
-        self.menuFile.addAction(self.openDatabase)
-        self.menuFile.addAction(self.saveAsDatabase)
         self.menuEdit.addAction(self.copy)
         self.menuEdit.addAction(self.paste)
         self.menuEdit.addAction(self.cut)
@@ -92,10 +86,7 @@ class Ui_MainWindow(object):
         self.menuEdit.addSeparator()
         self.menuEdit.addAction(self.undo)
         self.menuEdit.addAction(self.redo)
-        self.menuEdit.addSeparator()
-        self.menuEdit.addAction(self.createPrediction)
         self.menuWindows.addAction(self.closeWindow)
-        self.menuWindows.addAction(self.prediction)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuWindows.menuAction())

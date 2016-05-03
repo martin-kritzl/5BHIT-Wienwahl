@@ -1,129 +1,33 @@
-from enum import Enum
 import operator
 from PySide.QtCore import *
 from PySide.QtGui import QUndoStack
 
 __author__ = 'mkritzl'
 
-class WienwahlModel(object):
-    tables = []
-    currentIndexOfTab = 0
-
-    def getTables(self):
-        return self.tables
-
-    def setTables(self, tables):
-        self.tables = tables
-
-    def addTable(self, table):
-        self.tables.append(table)
-
-    def deleteTable(self, index):
-        return self.tables.pop(index)
-
-    def getTable(self, index):
-        return self.tables[index]
-
-    def getCurrentTable(self):
-        if len(self.tables) != 0:
-            return self.tables[self.currentIndexOfTab]
-        else:
-            return None
-
-    def getCurrentIndex(self):
-        return self.currentIndexOfTab
-
-    def setCurrentIndex(self, index):
-        self.currentIndexOfTab = index
-
-    def setCurrentTable(self, table):
-        self.currentIndexOfTab = self.tables.index(table)
-
-    def setCurrentTableAndAdd(self, table):
-        self.addTable(table)
-        self.setCurrentTable(table)
-
-    def getTableCount(self):
-        return len(self.tables)
-
-    def allSaved(self):
-        saved = True
-        for table in self.tables:
-            if table.isSaved()==False:
-                saved = False
-        return saved
-
-
 class TableModel(QAbstractTableModel):
     """
     https://blog.rburchell.com/2010/02/pyside-tutorial-model-view-programming_22.html
     """
     content = []
-    updatedRows = {}
-    addedRows = {}
-    removedRows = {}
     header = []
     accessor = None
     edited = False
-    saved = True
-    viewName = None
     undoStack = QUndoStack()
 
-    def __init__(self, parent,  data, accessor, *args):
+    def __init__(self, parent, *args):
         QAbstractTableModel.__init__(self, parent, *args)
-        if data:
-            self.content = data[1:len(data)]
-            self.header = data[0]
-
-        self.accessor = accessor
-
-    def addedRowsRemove(self, primary):
-        del self.addedRows[primary]
-
-    def addedRowsAdd(self, primary, row):
-        self.addedRows[primary] = row
-
-    def updatedRowsRemove(self, primary):
-        del self.updatedRows[primary]
-
-    def updatedRowsAdd(self, primary, row):
-        self.updatedRows[primary] = row
-
-    def removedRowsRemove(self, primary):
-        del self.removedRows[primary]
-
-    def removedRowsAdd(self, primary):
-        self.removedRows[primary]=""
-
-    def getRemovedRows(self):
-        return self.removedRows
-
-    def getAddedRows(self):
-        return self.removedRows
-
-    def getUpdatedRows(self):
-        return self.removedRows
-
-    def setView(self, view):
-        self.view = view
-
-    def getView(self):
-        return self.view
-
-    def getUndoStack(self):
-        return self.undoStack
-
-    def isSaved(self):
-        return self.saved
-
-    def setSaved(self, saved):
-        self.saved = saved
 
     def getAccessor(self):
         return self.accessor
 
     def setAccessor(self, accessor):
         self.accessor = accessor
+
+    def getUndoStack(self):
+        return self.undoStack
+
+    def setUndoStack(self, undoStack):
+        self.undoStack = undoStack
 
     def setEdited(self, edited):
         self.edited = edited
@@ -141,6 +45,13 @@ class TableModel(QAbstractTableModel):
             self.setEdited(True)
             return True
         return False
+
+    def setHeaderAndContent(self, data):
+        if data:
+            self.emit(SIGNAL("layoutToBeChanged()"))
+            self.content = data[1:len(data)]
+            self.header = data[0]
+            self.emit(SIGNAL("layoutChanged()"))
 
     def setContent(self, content):
         self.emit(SIGNAL("layoutToBeChanged()"))
@@ -203,33 +114,3 @@ class TableModel(QAbstractTableModel):
             self.content.reverse()
         self.emit(SIGNAL("layoutChanged()"))
         self.setEdited(True)
-
-
-class Accessor(object):
-
-    def __init__(self, access, type):
-        self.access = access
-        self.type = type
-
-    def getConnectionType(self):
-        return self.type
-
-    def getName(self):
-        return self.access[self.access.rfind("/")+1:len(self.access)]
-
-    def getAccessString(self):
-        return self.access
-
-class ConnectionType(Enum):
-    database = 1
-    csv = 2
-    prediction = 3
-
-class RowParser(object):
-    def __init__(self, row):
-        self.row = row
-
-    def getPrimary(self):
-        str(self.row[3])+","+str(self.row[4])
-
-

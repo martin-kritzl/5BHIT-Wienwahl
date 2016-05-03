@@ -3,20 +3,7 @@ from PySide.QtGui import QUndoCommand
 
 
 class EditCommand(QUndoCommand):
-    """
-    Edit the selected cell
-    :var __model: QTableModel: Model for command
-    :var __index: QModelIndex: selected cell
-    :var __oldValue: string: value before redo command executed
-    :var __newValue: string: value before undo command executed
-    """
-
     def __init__(self, model, index):
-        """
-        :param model: QTableModel
-        :param index: QModelIndex
-        :return: None
-        """
         QUndoCommand.__init__(self)
         self.__newValue = None
         self.__model = model
